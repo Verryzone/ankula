@@ -2,8 +2,8 @@
     <div class="py-11 lg:px-3">
         <div
             class="px-8 pt-2 bg-white block sm:flex items-center justify-between border-b rounded-t-lg border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
-            <div class="w-full mb-1">
-                <div class="mb-4">
+            <div class="w-full mb-5">
+                <div class="mb-2">
                     <nav class="flex mb-5" aria-label="Breadcrumb">
                         <ol class="inline-flex items-center space-x-1 text-sm font-medium md:space-x-2">
                             {{-- <li class="inline-flex items-center">

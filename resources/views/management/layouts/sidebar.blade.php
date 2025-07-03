@@ -17,8 +17,7 @@
                 <li>
                 </li>
                 <li>
-                    <a href="{{ route('management.index') }}"
-                        class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group">
+                    <a href="{{ route('management.index') }}" class="flex {{ activeMenu('management.index') }} items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 group">
                         <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                             aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
                             viewBox="0 0 22 21">
@@ -50,12 +49,12 @@
                         </svg>
                     </button>
                     <ul id="dropdown-masterdata"
-                        class="space-y-2 py-2 {{ Route::is('management.product.list') ? '' : 'hidden' }}">
+                        class="space-y-2 py-2 {{ selectedDropdown(['management.product.list', 'management.category.list']) }}">
                         <li>
-                            <a href="{{ route('management.product.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ Route::is('management.product.list') ? 'bg-gray-200' : 'bg-gray-50' }} dark:bg-gray-700">Products</a>
+                            <a href="{{ route('management.product.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.product.list') }} dark:bg-gray-700">Products</a>
                         </li>
                         <li>
-                            <a href="{{ route('management.category.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ Route::is('management.category.list') ? 'bg-gray-200' : 'bg-gray-50' }} dark:bg-gray-700">Categories</a>
+                            <a href="{{ route('management.category.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.category.list') }} dark:bg-gray-700">Categories</a>
                         </li>
                         <li>
                             <a href=""

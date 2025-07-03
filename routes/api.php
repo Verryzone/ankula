@@ -17,5 +17,5 @@ Route::prefix('category')->group(function () {
 
 Route::prefix('product')->group(function () {
     Route::get('/{id}', [ProductController::class, 'edit']);
-    route::put('/{id}', [ProductController::class, 'update']);
+    route::post('/{id}', [ProductController::class, 'update']);
 });

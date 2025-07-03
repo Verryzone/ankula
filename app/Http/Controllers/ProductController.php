@@ -62,7 +62,7 @@ class ProductController extends Controller
         }
     }
 
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
@@ -72,7 +72,7 @@ class ProductController extends Controller
             'stock' => 'required|numeric'
         ]);
 
-        $produk = Product::find($request->id);
+        $produk = Product::find($id);
         if ($produk) {
             if ($request->hasFile('image')) {
                 $storeImage = $request->file('image')->store('products/images', 'public');

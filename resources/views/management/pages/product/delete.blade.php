@@ -21,11 +21,11 @@
                   d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
       </svg>
       <h3 class="mb-6 text-lg text-gray-500 dark:text-gray-400">Are you sure you want to delete this product?</h3>
-      <div class="w-full bg-fuchsia-500 flex">
+      <div class="w-full flex">
             <form action="{{ route('management.product.destroy') }}" method="POST">
                   @csrf
                   @method('DELETE')
-                  <input type="hidden" name="id" id="product-id-delete" value="0">
+                  <input type="hidden" name="id" id="id-delete" value="0">
                   <button type="submit"
                         class="drawer-delete-yes text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-3 py-2.5 text-center mr-2 dark:focus:ring-red-900">
                         Yes, I'm sure

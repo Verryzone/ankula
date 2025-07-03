@@ -29,15 +29,19 @@ async function update_product(e) {
 
       console.log(id)
 
-      let formData = {
-            name: $('#name').val(),
-            description: $('#description').val(),
-            price: $('#price').val(),
-            stock: $('#stock').val(),
+      let formData = new FormData();
+      const imageFile = $('#image')[0].files[0];
+      if (imageFile) {
+            formData.append('image', imageFile);
       }
+      formData.append('name', $('#name').val());
+      formData.append('description', $('#description').val());
+      formData.append('price', $('#price').val());
+      formData.append('stock', $('#stock').val());
+      formData.append('category_id', $('#category_id').val());
 
       try{
-            axios.put(`/api/product/${id}`, formData).then(response => {
+            axios.post(`/api/product/${id}`, formData).then(response => {
                   console.log(response.data)
                   $("#drawer-update-product-default").removeClass('translate-x-0').addClass('translate-x-full')
                   window.setTimeout(function (){

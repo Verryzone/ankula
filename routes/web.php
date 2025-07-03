@@ -29,7 +29,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
 });
 
-Route::prefix('management')->middleware(['auth', 'verified'])->group(function () {
+Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [ManagementController::class, 'index'])->name('management.index');
 
     // Product routes

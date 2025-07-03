@@ -8,6 +8,10 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
+// Tambahan controller auth
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
+
 Route::get('/', function () {
     return view('welcome');
 });
@@ -26,7 +30,7 @@ Route::middleware('auth')->group(function () {
 
 Route::prefix('management')->middleware(['auth', 'verified'])->group(function () {
     Route::get('/', [ManagementController::class, 'index'])->name('management.index');
-    
+
     // Product routes
     Route::get('/product', [ProductController::class, 'list'])->name('management.product.list');
     Route::post('/product', [ProductController::class, 'add'])->name('management.product.add');
@@ -37,10 +41,19 @@ Route::prefix('management')->middleware(['auth', 'verified'])->group(function ()
     Route::get('/category', [CategoryController::class, 'list'])->name('management.category.list');
     Route::post('/category', [CategoryController::class, 'add'])->name('management.category.add');
     Route::delete('/category', [CategoryController::class, 'destroy'])->name('management.category.destroy');
-    
+
     Route::get('/profile', [ManagementProfileController::class, 'edit'])->name('management.profile.edit');
     Route::patch('/profile', [ManagementProfileController::class, 'update'])->name('management.profile.update');
     Route::delete('/profile', [ManagementProfileController::class, 'destroy'])->name('management.profile.destroy');
+});
+
+// Route login & register eksplisit
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
 require __DIR__.'/auth.php';

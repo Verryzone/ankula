@@ -14,11 +14,11 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', function () {
     return view('pages.dashboard.app');
-});
+})->name('dashboard');
 
 Route::get('/dashboard', function () {
     return view('pages.dashboard.app');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth', 'verified']);
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
     // Halaman daftar keranjang
@@ -26,7 +26,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
 
     Route::get('/checkout', function () {
         return view('pages.cart.checkout');
-    })->name('cart.checkout');
+    })->name('checkout');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

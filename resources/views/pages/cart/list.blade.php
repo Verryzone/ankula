@@ -4,41 +4,9 @@
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- Cart Items Section -->
                 <div class="lg:col-span-3">
-                    <!-- Select All Header -->
-                    {{-- <div class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 mb-4">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-4">
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" id="select-all"
-                                        class="w-5 h-5 text-blue-700 bg-white border-2 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2">
-                                    <span class="ml-3 font-semibold text-gray-900">Pilih Semua</span>
-                                </label>
-                                <span class="text-gray-500 text-sm">(1)</span>
-                            </div>
-                            <button class="text-red-500 hover:text-red-600 font-medium text-sm transition-colors">
-                                Hapus
-                            </button>
-                        </div>
-                    </div> --}}
 
                     <!-- Store Section -->
                     <div class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden">
-                        <!-- Store Header -->
-                        {{-- <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
-                            <div class="flex items-center gap-4">
-                                <label class="flex items-center cursor-pointer">
-                                    <input type="checkbox" id="select-store"
-                                        class="w-5 h-5 text-primary bg-white border-2 border-gray-300 rounded-sm focus:focus-ring-primary focus:ring-2 ">
-                                    <div class="ml-3 flex items-center gap-3">
-                                        <div
-                                            class="w-7 h-7 bg-linear-to-br from-purple-600 to-purple-700 rounded-lg flex items-center justify-center shadow-xs">
-                                            <i class="fas fa-store text-white text-xs"></i>
-                                        </div>
-                                        <span class="font-semibold text-gray-900">PUMA Indonesia</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div> --}}
 
                         <!-- Product Item -->
                         <div class="p-5 my-2">
@@ -111,20 +79,6 @@
                                                 +
                                             </button>
                                         </div>
-                                        <!-- Quantity Controls -->
-                                        {{-- <div class="flex items-center border border-gray-300 rounded-lg bg-white shadow-xs">
-                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-l-lg" 
-                                                    onclick="decreaseQuantity()">
-                                                <i class="fas fa-minus text-gray-400 text-xs"></i>
-                                            </button>
-                                            <input type="number" id="quantity" value="1" min="1" 
-                                                   class="w-10 text-center border-0 focus:ring-0 py-2.5 text-sm font-semibold bg-transparent" 
-                                                   readonly>
-                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-r-lg" 
-                                                    onclick="increaseQuantity()">
-                                                <i class="fas fa-plus text-gray-400 text-xs"></i>
-                                            </button>
-                                        </div> --}}
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +98,7 @@
                         </div>
 
                         <!-- Promo Section -->
-                        {{-- <div class="bg-linear-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6 relative overflow-hidden">
+                        <div class="bg-linear-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6 relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
                             <div class="relative flex items-start gap-3">
                                 <div class="w-8 h-8 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-xs shrink-0 mt-0.5">
@@ -159,12 +113,12 @@
                                 </div>
                                 <i class="fas fa-chevron-right text-emerald-400 text-sm mt-1"></i>
                             </div>
-                        </div> --}}
+                        </div>
 
                         <!-- Buy Button -->
                         <button
                             class="w-full bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-lg focus:outline-hidden focus:ring-2 focus:ring-primary-500 transition-all ease-in-out hover:scale-105"
-                            onclick="handlePurchase()">
+                            onclick="window.location.href='{{ route('checkout') }}'">
                             <span class="flex items-center justify-center gap-2">
                                 <i class="fas fa-shopping-cart text-sm"></i>
                                 Beli

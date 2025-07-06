@@ -4,19 +4,20 @@
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-6">
 
                 <!-- Product Preview (Left) -->
-<div class="lg:col-span-3">
-    <div class="bg-white rounded-lg border shadow-sm p-6 flex items-start gap-6">
-        <img src="https://id.puma.com/on/demandware.static/-/Sites-puma-master-catalog/default/dw51003b6c/077482/077482_13_sv01.jpg"
-             alt="PUMA Phase Backpack No. 2 Warm White"
-             class="w-40 h-40 object-cover rounded-lg border">
-        <div class="flex-1">
-            <h2 class="text-2xl font-bold text-gray-900 mb-2">PUMA Phase Backpack No. 2</h2>
-            <p class="text-sm text-gray-600 mb-1">Color: <span class="font-medium">Warm White</span></p>
-            <p class="text-sm text-gray-600 mb-1">Size: <span class="font-medium">OSFA (One Size Fits All)</span></p>
-            <p class="text-sm text-gray-600 mt-2">Est. Delivery: <span class="text-green-600">3–5 hari</span></p>
-        </div>
-    </div>
-</div>
+                <div class="lg:col-span-3">
+                    <div class="bg-white rounded-lg border shadow-sm p-6 flex items-start gap-6">
+                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150&h=150&fit=crop"
+                            alt="PUMA Phase Backpack No. 2 Warm White" class="w-40 h-40 object-cover rounded-lg border">
+                        <div class="flex-1">
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">PUMA Phase Backpack No. 2</h2>
+                            <p class="text-sm text-gray-600 mb-1">Color: <span class="font-medium">Warm White</span></p>
+                            <p class="text-sm text-gray-600 mb-1">Size: <span class="font-medium">OSFA (One Size Fits
+                                    All)</span></p>
+                            <p class="text-sm text-gray-600 mt-2">Est. Delivery: <span class="text-green-600">3–5
+                                    hari</span></p>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Checkout Details (Right) -->
                 <div class="lg:col-span-2">
@@ -38,12 +39,13 @@
                             <span>Rp569.430</span>
                         </div>
 
-                        <button class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 mt-6 rounded-lg transition duration-300">
+                        <button
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 mt-6 rounded-lg transition duration-300">
                             <i class="fas fa-credit-card mr-2"></i> Bayar Sekarang
                         </button>
 
                         <a href="{{ route('cart.list') }}"
-                           class="block text-center text-sm text-indigo-600 hover:underline mt-4">
+                            class="block text-center text-sm text-indigo-600 hover:underline mt-4">
                             ← Kembali ke Keranjang
                         </a>
                     </div>

@@ -21,6 +21,7 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
+    // Halaman daftar keranjang
     Route::get('/cart', [CartController::class, 'list'])->name('cart.list');
 
     Route::get('/checkout', function () {
@@ -30,7 +31,6 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 });
 
 Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function () {
@@ -47,6 +47,7 @@ Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function 
     Route::post('/category', [CategoryController::class, 'add'])->name('management.category.add');
     Route::delete('/category', [CategoryController::class, 'destroy'])->name('management.category.destroy');
 
+    // Admin profile
     Route::get('/profile', [ManagementProfileController::class, 'edit'])->name('management.profile.edit');
     Route::patch('/profile', [ManagementProfileController::class, 'update'])->name('management.profile.update');
     Route::delete('/profile', [ManagementProfileController::class, 'destroy'])->name('management.profile.destroy');

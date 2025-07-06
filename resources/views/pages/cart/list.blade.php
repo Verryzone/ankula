@@ -1,6 +1,6 @@
 <x-app-layout>
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-2 lg:px-4 space-y-6">
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- Cart Items Section -->
                 <div class="lg:col-span-3">

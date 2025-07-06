@@ -35,7 +35,8 @@
                         d="M12 5.365V3m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175 0 .593 0 1.292-.538 1.292H5.538C5 18 5 17.301 5 16.708c0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 12 5.365ZM8.733 18c.094.852.306 1.54.944 2.112a3.48 3.48 0 0 0 4.646 0c.638-.572 1.236-1.26 1.33-2.112h-6.92Z" />
                 </svg>
             </button>
-            <button onclick="window.location.href='{{ route('cart.list') }}'" class="hover:bg-gray-100 bg-primary dark:hover:bg-gray-700 rounded-lg p-2 mr-4">
+            <button onclick="window.location.href='{{ route('cart.list') }}'"
+                class="hover:bg-gray-100 bg-primary dark:hover:bg-gray-700 rounded-lg p-2 mr-4">
                 <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                     width="24" height="24" fill="gray" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -43,15 +44,37 @@
                         clip-rule="evenodd" />
                 </svg>
             </button>
-            <button onclick="window.location.href='{{ route('login') }}'" class="flex items-center bg-primary text-white px-6 py-2 rounded-lg bg-blue-700 transition-colors duration-300">
-                Sign in
-            </button>
-            {{-- <form action="{{ route('logout') }}" method="post">
-                @csrf
-                <button class="flex items-center bg-primary text-white px-6 py-2 rounded-lg bg-blue-700 transition-colors duration-300">
-                    Logout
+            @guest
+                <button onclick="window.location.href='{{ route('login') }}'"
+                    class="flex items-center bg-primary text-white px-6 py-2 rounded-lg bg-blue-700 transition-colors duration-300">
+                    Sign in
                 </button>
-            </form> --}}
+            @endguest
+            @auth
+                <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" type="button" class="ml-3">
+                    <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg"
+                        alt="user photo">
+                </button>
+
+                <!-- Dropdown menu -->
+                <div id="dropdown"
+                    class="z-30 hidden bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
+                    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownDefaultButton">
+                        <li>
+                            <a href="{{ route('profile.edit') }}"
+                                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Profile</a>
+                        </li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="post">
+                                @csrf
+                                <button type="submit"
+                                    class="block w-full text-left px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Sign
+                                    out</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            @endauth
         </div>
     </div>
 </nav>

@@ -114,14 +114,14 @@
                                         </div>
                                         <!-- Quantity Controls -->
                                         {{-- <div class="flex items-center border border-gray-300 rounded-lg bg-white shadow-xs">
-                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-l-lg" 
+                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-l-lg"
                                                     onclick="decreaseQuantity()">
                                                 <i class="fas fa-minus text-gray-400 text-xs"></i>
                                             </button>
-                                            <input type="number" id="quantity" value="1" min="1" 
-                                                   class="w-10 text-center border-0 focus:ring-0 py-2.5 text-sm font-semibold bg-transparent" 
+                                            <input type="number" id="quantity" value="1" min="1"
+                                                   class="w-10 text-center border-0 focus:ring-0 py-2.5 text-sm font-semibold bg-transparent"
                                                    readonly>
-                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-r-lg" 
+                                            <button class="p-2.5 hover:bg-gray-50 transition-colors rounded-r-lg"
                                                     onclick="increaseQuantity()">
                                                 <i class="fas fa-plus text-gray-400 text-xs"></i>
                                             </button>
@@ -154,7 +154,7 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="font-semibold text-gray-900 text-sm mb-1">2 kupon promo berhasil dipakai</p>
                                     <p class="text-emerald-700 text-sm leading-relaxed">
-                                        Dapat diskon <span class="font-bold">Rp379.620</span> & cashback 
+                                        Dapat diskon <span class="font-bold">Rp379.620</span> & cashback
                                         <span class="font-bold">25.000</span> 🎉
                                     </p>
                                 </div>

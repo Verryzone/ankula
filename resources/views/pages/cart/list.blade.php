@@ -5,7 +5,7 @@
                 <!-- Cart Items Section -->
                 <div class="lg:col-span-3">
                     <!-- Select All Header -->
-                    <div class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 mb-4">
+                    {{-- <div class="bg-white rounded-lg shadow-xs border border-gray-100 p-5 mb-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4">
                                 <label class="flex items-center cursor-pointer">
@@ -19,12 +19,12 @@
                                 Hapus
                             </button>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <!-- Store Section -->
                     <div class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden">
                         <!-- Store Header -->
-                        <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                        {{-- <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                             <div class="flex items-center gap-4">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="checkbox" id="select-store"
@@ -38,10 +38,10 @@
                                     </div>
                                 </label>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <!-- Product Item -->
-                        <div class="p-5">
+                        <div class="p-5 my-2">
                             <div class="flex items-center gap-4">
                                 <!-- Checkbox -->
                                 <div class="shrink-0 pt-1">
@@ -105,8 +105,7 @@
                                                 class="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                                                 -
                                             </button>
-                                            <input type="number" id="quantity" value="1" min="1"
-                                                class="w-20 rounded-lg">
+                                            <input type="text" id="quantity" value="1" min="1" class="w-16 rounded-lg">
                                             <button
                                                 class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
                                                 +

@@ -34,109 +34,28 @@
                         </div>
                         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
                             <!-- 1 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <div
-                                        class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
-                                        30% OFF
+                            @foreach ($products as $product)
+                                <div
+                                    class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
+                                    onclick="showProductDetail({{ $product->id }})">
+                                    <div class="relative bg-gray-100 aspect-square">
+                                        <div
+                                            class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
+                                            30% OFF
+                                        </div>
+                                        <img src="{{ asset("storage/products/images/{$product->image}") }}" alt="Sweater"
+                                            class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                     </div>
-                                    <img src="{{ asset('img/1.jpg') }}" alt="Sweater"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Knitwear</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Maroon Solid Knit Sweater</h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★☆ <span
-                                            class="text-gray-400">(18)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$65.00</div>
-                                </div>
-                            </div>
-
-                            <!-- 2 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <img src="{{ asset('img/11.jpg') }}" alt="Sunglasses"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Accessories</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Classic Aviator Sunglasses</h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★★ <span
-                                            class="text-gray-400">(55)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$120.00</div>
-                                </div>
-                            </div>
-
-                            <!-- 3 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <img src="{{ asset('img/12.jpg') }}" alt="Dress"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Dresses</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Green Floral Print A-Line Dress
-                                    </h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★☆ <span
-                                            class="text-gray-400">(21)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$88.00</div>
-                                </div>
-                            </div>
-
-                            <!-- 4 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <div
-                                        class="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md z-10">
-                                        50% OFF
+                                    <div class="p-4">
+                                        <p class="text-xs text-gray-500">{{ $product->name }}</p>
+                                        <h3 class="font-semibold text-gray-800 text-sm mt-1">{{ $product->description }}
+                                        </h3>
+                                        <div class="text-yellow-400 my-2 text-xs">★★★★☆ <span
+                                                class="text-gray-400">(18)</span></div>
+                                        <div class="font-bold text-lg text-gray-900">{{ formatCurrency($product->price) }}</div>
                                     </div>
-                                    <img src="{{ asset('img/11.jpg') }}" alt="Handbag"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                                 </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Bags & Purses</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Elegant Leather Handbag</h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★★ <span
-                                            class="text-gray-400">(43)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$150.00</div>
-                                </div>
-                            </div>
-
-                            <!-- 5 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <img src="{{ asset('img/12.jpg') }}" alt="Hat"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Hats & Caps</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Classic Fedora Hat</h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★☆ <span
-                                            class="text-gray-400">(30)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$35.00</div>
-                                </div>
-                            </div>
-
-                            <!-- 6 -->
-                            <div
-                                class="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 group">
-                                <div class="relative bg-gray-100 aspect-square">
-                                    <img src="{{ asset('img/11.jpg') }}" alt="Jeans"
-                                        class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                </div>
-                                <div class="p-4">
-                                    <p class="text-xs text-gray-500">Denim</p>
-                                    <h3 class="font-semibold text-gray-800 text-sm mt-1">Slim-Fit Washed Jeans</h3>
-                                    <div class="text-yellow-400 my-2 text-xs">★★★★★ <span
-                                            class="text-gray-400">(89)</span></div>
-                                    <div class="font-bold text-lg text-gray-900">$98.00</div>
-                                </div>
-                            </div>
+                            @endforeach
                         </div>
 
                     </section>
@@ -196,4 +115,91 @@
             </div>
         </div>
     </div>
+
+    <!-- Product Detail Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="flex justify-between items-center p-6 border-b">
+                <h2 class="text-2xl font-bold text-gray-800">Detail Produk</h2>
+                <button onclick="productDetailModal.closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">
+                    &times;
+                </button>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Product Image -->
+                    <div class="space-y-4">
+                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                            <img id="modalProductImage" src="" alt="Product Image" 
+                                 class="w-full h-full object-cover">
+                        </div>
+                    </div>
+                    
+                    <!-- Product Info -->
+                    <div class="space-y-6">
+                        <div>
+                            <p id="modalProductCategory" class="text-sm text-gray-500 mb-2"></p>
+                            <h1 id="modalProductName" class="text-3xl font-bold text-gray-800 mb-2"></h1>
+                            <div class="text-yellow-400 mb-4">★★★★☆ <span class="text-gray-400">(18 reviews)</span></div>
+                        </div>
+                        
+                        <div>
+                            <p id="modalProductPrice" class="text-3xl font-bold text-blue-600 mb-4"></p>
+                            <div class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full inline-block mb-4">
+                                <span id="modalProductStock"></span> tersedia
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold mb-2">Deskripsi</h3>
+                            <p id="modalProductDescription" class="text-gray-600 leading-relaxed"></p>
+                        </div>
+                        
+                        <!-- Quantity Selector (only for customers) -->
+                        <div id="quantitySection">
+                            <h3 class="text-lg font-semibold mb-2">Jumlah</h3>
+                            <div class="flex items-center space-x-3">
+                                <button class="btn-quantity-decrease bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                                    -
+                                </button>
+                                <input id="quantity" type="number" value="1" min="1" class="w-16 text-center border border-gray-300 rounded py-2">
+                                <button class="btn-quantity-increase bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
+                                    +
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons (dynamic based on user role) -->
+                        <div id="actionButtons">
+                            <!-- Buttons will be populated by JavaScript based on user role -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Configure axios defaults
+        axios.defaults.withCredentials = true;
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        
+        // Pass user data to JavaScript
+        window.userRole = '{{ auth()->check() ? auth()->user()->role : "guest" }}';
+        window.isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+    </script>
+    
+    @if(auth()->check() && auth()->user()->role === 'admin')
+        <!-- Load admin functions for product management -->
+        <script src="{{ asset('js/custom.js') }}"></script>
+        <script src="{{ asset('api/private-axios.js') }}"></script>
+    @endif
+    
+    <script src="{{ asset('js/product-detail.js') }}"></script>
 </x-app-layout>

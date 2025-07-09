@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
@@ -17,5 +18,16 @@ Route::prefix('category')->group(function () {
 
 Route::prefix('product')->group(function () {
     Route::get('/{id}', [ProductController::class, 'edit']);
+    Route::get('/{id}/detail', [ProductController::class, 'show']);
     route::post('/{id}', [ProductController::class, 'update']);
 });
+
+// Cart routes - requires authentication and session
+Route::prefix('cart')
+    ->middleware(['web', 'auth', 'role:customer'])
+    ->group(function () {
+        Route::post('/add', [CartController::class, 'addToCart'])->name('api.cart.add');
+        Route::get('/', [CartController::class, 'getCart'])->name('api.cart.get');
+        Route::put('/update/{id}', [CartController::class, 'updateCartItem'])->name('api.cart.update');
+        Route::delete('/remove/{id}', [CartController::class, 'removeCartItem'])->name('api.cart.remove');
+    });

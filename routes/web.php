@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\ManagementProfileController;
 use App\Http\Controllers\ProductController;
@@ -12,9 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
-Route::get('/', function () {
-    return view('pages.dashboard.app');
-})->name('dashboard');
+Route::get('/', [dashboardController::class, 'fetch'])->name('dashboard');
 
 Route::get('/dashboard', function () {
     return view('pages.dashboard.app');
@@ -23,10 +23,9 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'role:customer'])->group(function () {
     // Halaman daftar keranjang
     Route::get('/cart', [CartController::class, 'list'])->name('cart.list');
-
-    Route::get('/checkout', function () {
-        return view('pages.cart.checkout');
-    })->name('checkout');
+    
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

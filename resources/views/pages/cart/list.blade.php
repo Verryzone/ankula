@@ -1,30 +1,59 @@
 <x-app-layout>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-2 lg:px-4 space-y-6">
+            @if($cartItems->isEmpty())
+                <!-- Empty Cart State -->
+                <div class="text-center py-16">
+                    <div class="max-w-md mx-auto">
+                        <div class="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                            <svg class="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 1.5M7 13l-1.5-1.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Keranjang Belanja Kosong</h3>
+                        <p class="text-gray-500 mb-6">Belum ada produk yang ditambahkan ke keranjang</p>
+                        <a href="{{ route('dashboard') }}" class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+                            </svg>
+                            Mulai Belanja
+                        </a>
+                    </div>
+                </div>
+            @else
             <div class="grid grid-cols-2 lg:grid-cols-5 gap-6">
                 <!-- Cart Items Section -->
                 <div class="lg:col-span-3">
-
-                    <!-- Store Section -->
                     <div class="bg-white rounded-lg shadow-xs border border-gray-100 overflow-hidden">
+                        <!-- Cart Header -->
+                        <div class="p-4 border-b border-gray-100">
+                            <div class="flex items-center gap-4">
+                                <input type="checkbox" id="select-all" class="w-5 h-5 text-blue-700 bg-white border-2 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2">
+                                <label for="select-all" class="font-semibold text-gray-900">Pilih Semua ({{ $totalItems }} item)</label>
+                            </div>
+                        </div>
 
-                        <!-- Product Item -->
-                        <div class="p-5 my-2">
+                        <!-- Cart Items -->
+                        @foreach($cartItems as $item)
+                        <div class="p-5 border-b border-gray-100 last:border-b-0" data-cart-item-id="{{ $item->id }}">
                             <div class="flex items-center gap-4">
                                 <!-- Checkbox -->
                                 <div class="shrink-0 pt-1">
-                                    <input type="checkbox" id="select-item"
-                                        class="w-5 h-5 text-blue-700 bg-white border-2 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2">
+                                    <input type="checkbox" class="cart-item-checkbox w-5 h-5 text-blue-700 bg-white border-2 border-gray-300 rounded-sm focus:ring-blue-500 focus:ring-2" 
+                                           data-price="{{ $item->product->price }}" 
+                                           data-quantity="{{ $item->quantity }}">
                                 </div>
 
                                 <!-- Product Image -->
                                 <div class="shrink-0 relative">
-                                    <div class="w-30 h-30 rounded-lg overflow-hidden border border-gray-200 shadow-xs">
-                                        <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=150&h=150&fit=crop"
-                                            alt="PUMA Sneakers" class="w-full h-full object-cover">
+                                    <div class="w-28 h-28 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                                        <img src="{{ asset('storage/products/images/' . $item->product->image) }}" 
+                                             alt="{{ $item->product->name }}" 
+                                             class="w-full h-full object-cover"
+                                             onerror="this.src='https://via.placeholder.com/96x96?text=No+Image'">
                                     </div>
-                                    <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-bl-lg">
-                                          Sisa : 12
+                                    <div class="absolute top-0 right-0 bg-red-500 text-white text-xs font-semibold px-1.5 py-0.5 rounded-bl-lg">
+                                        Sisa: {{ $item->product->stock }}
                                     </div>
                                 </div>
 
@@ -32,50 +61,54 @@
                                 <div class="flex-1 min-w-0">
                                     <div class="flex justify-between items-start mb-2">
                                         <h3 class="font-medium text-gray-900 text-sm leading-relaxed pr-2">
-                                            [HOT PRODUCT] PUMA PUMA Shuffle Trainers Warm White-White-Gold
+                                            {{ $item->product->name }}
                                         </h3>
                                     </div>
 
-                                    <p class="text-sm text-gray-500 mb-3">Size: 36</p>
+                                    <p class="text-sm text-gray-500 mb-3">
+                                        Kategori: {{ $item->product->category->name ?? 'Tanpa Kategori' }}
+                                    </p>
 
                                     <!-- Price -->
                                     <div class="flex items-baseline gap-2 mb-4">
-                                        <span class="text-2xl font-bold text-red-600">Rp569.430</span>
-                                        <span class="text-sm text-gray-400 line-through">Rp949.050</span>
+                                        <span class="text-2xl font-bold text-red-600">{{ formatCurrency($item->product->price) }}</span>
+                                        {{-- You can add original_price field to show discount --}}
+                                        {{-- <span class="text-sm text-gray-400 line-through">{{ formatCurrency($item->product->original_price) }}</span> --}}
                                     </div>
 
                                     <!-- Actions Row -->
                                     <div class="flex items-center justify-between">
                                         <!-- Action Buttons -->
                                         <div class="flex items-center gap-2">
-                                            <button class="p-2.5 hover:bg-gray-100 rounded-lg transition-colors group">
-                                                <svg class="w-6 h-6 text-red-500 dark:text-white" aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    fill="currentColor" viewBox="0 0 24 24">
-                                                    <path
-                                                        d="m12.75 20.66 6.184-7.098c2.677-2.884 2.559-6.506.754-8.705-.898-1.095-2.206-1.816-3.72-1.855-1.293-.034-2.652.43-3.963 1.442-1.315-1.012-2.678-1.476-3.973-1.442-1.515.04-2.825.76-3.724 1.855-1.806 2.201-1.915 5.823.772 8.706l6.183 7.097c.19.216.46.34.743.34a.985.985 0 0 0 .743-.34Z" />
+                                            <button class="p-2.5 hover:bg-gray-100 rounded-lg transition-colors group" title="Tambah ke Wishlist">
+                                                <svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="m12.75 20.66 6.184-7.098c2.677-2.884 2.559-6.506.754-8.705-.898-1.095-2.206-1.816-3.72-1.855-1.293-.034-2.652.43-3.963 1.442-1.315-1.012-2.678-1.476-3.973-1.442-1.515.04-2.825.76-3.724 1.855-1.806 2.201-1.915 5.823.772 8.706l6.183 7.097c.19.216.46.34.743.34a.985.985 0 0 0 .743-.34Z" />
                                                 </svg>
                                             </button>
-                                            <button class="p-2.5 hover:bg-red-500 rounded-lg transition-colors group">
-                                                <svg class="w-6 h-6 text-gray-400 hover:text-white dark:text-white" aria-hidden="true"
-                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    fill="currentColor" viewBox="0 0 24 24">
-                                                    <path fill-rule="evenodd"
-                                                        d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z"
-                                                        clip-rule="evenodd" />
+                                            <button class="p-2.5 hover:bg-red-500 hover:text-white rounded-lg transition-colors group" 
+                                                    onclick="removeCartItem({{ $item->id }})" 
+                                                    title="Hapus dari Keranjang">
+                                                <svg class="w-6 h-6 text-gray-400 group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path fill-rule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd" />
                                                 </svg>
-
                                             </button>
                                         </div>
 
+                                        <!-- Quantity Controls -->
                                         <div class="flex items-center gap-2">
-                                            <button
-                                                class="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                            <button class="py-2.5 px-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                                    onclick="updateQuantity({{ $item->id }}, -1)">
                                                 -
                                             </button>
-                                            <input type="text" id="quantity" value="1" min="1" class="w-16 rounded-lg">
-                                            <button
-                                                class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                                            <input type="number" 
+                                                   id="quantity-{{ $item->id }}" 
+                                                   value="{{ $item->quantity }}" 
+                                                   min="1" 
+                                                   max="{{ $item->product->stock }}"
+                                                   class="w-16 text-center rounded-lg border border-gray-300"
+                                                   onchange="updateQuantity({{ $item->id }}, 0, this.value)">
+                                            <button class="py-2.5 px-3 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                                    onclick="updateQuantity({{ $item->id }}, 1)">
                                                 +
                                             </button>
                                         </div>
@@ -83,6 +116,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endforeach
                     </div>
                 </div>
 
@@ -91,42 +125,257 @@
                     <div class="bg-white rounded-lg shadow-xs border border-gray-100 p-6 sticky top-4">
                         <h3 class="text-xl font-semibold text-gray-900 mb-6">Ringkasan belanja</h3>
 
+                        <!-- Subtotal -->
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-gray-600">Subtotal ({{ $totalItems }} item)</span>
+                            <span class="font-semibold text-gray-900">{{ formatCurrency($totalPrice) }}</span>
+                        </div>
+
+                        <!-- Shipping -->
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-gray-600">Ongkos Kirim</span>
+                            <span class="font-semibold text-gray-900">Gratis</span>
+                        </div>
+
                         <!-- Total -->
                         <div class="flex justify-between items-center mb-6 pb-6 border-b border-gray-100">
                             <span class="text-gray-600 font-medium">Total</span>
-                            <span class="text-3xl font-bold text-gray-900">Rp569.430.000</span>
+                            <span id="total-price" class="text-3xl font-bold text-gray-900">{{ formatCurrency($totalPrice) }}</span>
                         </div>
 
+                        <!-- Selected Items Info -->
+                        <div id="selected-items-info" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 hidden">
+                            <div class="flex items-start gap-3">
+                                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center shrink-0 mt-0.5">
+                                    <i class="fas fa-info text-white text-sm"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-900 text-sm mb-1">
+                                        <span id="selected-count">0</span> item dipilih
+                                    </p>
+                                    <p class="text-blue-700 text-sm">
+                                        Total: <span id="selected-total" class="font-bold">Rp0</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($totalDiscount > 0)
                         <!-- Promo Section -->
-                        <div class="bg-linear-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6 relative overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-50 to-green-50 border border-emerald-200 rounded-lg p-4 mb-6 relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
                             <div class="relative flex items-start gap-3">
-                                <div class="w-8 h-8 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-xs shrink-0 mt-0.5">
+                                <div class="w-8 h-8 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-sm shrink-0 mt-0.5">
                                     <i class="fas fa-check text-white text-sm"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="font-semibold text-gray-900 text-sm mb-1">2 kupon promo berhasil dipakai</p>
+                                    <p class="font-semibold text-gray-900 text-sm mb-1">Promo berhasil dipakai</p>
                                     <p class="text-emerald-700 text-sm leading-relaxed">
-                                        Dapat diskon <span class="font-bold">Rp379.620</span> & cashback 
-                                        <span class="font-bold">25.000</span> 🎉
+                                        Hemat <span class="font-bold">{{ formatCurrency($totalDiscount) }}</span> 🎉
                                     </p>
                                 </div>
                                 <i class="fas fa-chevron-right text-emerald-400 text-sm mt-1"></i>
                             </div>
                         </div>
+                        @endif
 
                         <!-- Buy Button -->
-                        <button
-                            class="w-full bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-lg focus:outline-hidden focus:ring-2 focus:ring-primary-500 transition-all ease-in-out hover:scale-105"
-                            onclick="window.location.href='{{ route('checkout') }}'">
+                        <button id="checkout-btn"
+                            class="w-full bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ease-in-out hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                            onclick="proceedToCheckout()" 
+                            disabled>
                             <span class="flex items-center justify-center gap-2">
                                 <i class="fas fa-shopping-cart text-sm"></i>
-                                Beli
+                                <span id="checkout-text">Pilih produk untuk checkout</span>
                             </span>
                         </button>
                     </div>
                 </div>
             </div>
+            @endif
         </div>
     </div>
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // Configure axios defaults
+        axios.defaults.withCredentials = true;
+        axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+        
+        // Cart management functions
+        function updateQuantity(cartItemId, change, newValue = null) {
+            const quantityInput = document.getElementById(`quantity-${cartItemId}`);
+            let quantity = newValue ? parseInt(newValue) : parseInt(quantityInput.value) + change;
+            
+            if (quantity < 1) quantity = 1;
+            
+            const maxStock = parseInt(quantityInput.getAttribute('max'));
+            if (quantity > maxStock) {
+                alert(`Stock tidak mencukupi. Maksimal ${maxStock} item.`);
+                return;
+            }
+            
+            quantityInput.value = quantity;
+            
+            // Update cart in database
+            updateCartItem(cartItemId, quantity);
+        }
+
+        async function updateCartItem(cartItemId, quantity) {
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                const response = await axios.put(`/api/cart/update/${cartItemId}`, {
+                    quantity: quantity
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.data.success) {
+                    // Update the checkbox data attribute for quantity
+                    const checkbox = document.querySelector(`[data-cart-item-id="${cartItemId}"] .cart-item-checkbox`);
+                    if (checkbox) {
+                        checkbox.setAttribute('data-quantity', quantity);
+                    }
+                    updateCartTotals();
+                } else {
+                    alert(response.data.message || 'Gagal memperbarui keranjang');
+                }
+            } catch (error) {
+                console.error('Error updating cart:', error);
+                if (error.response && error.response.data && error.response.data.message) {
+                    alert(error.response.data.message);
+                } else {
+                    alert('Gagal memperbarui keranjang');
+                }
+            }
+        }
+
+        async function removeCartItem(cartItemId) {
+            if (!confirm('Hapus produk dari keranjang?')) return;
+            
+            try {
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                
+                const response = await axios.delete(`/api/cart/remove/${cartItemId}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': token
+                    }
+                });
+
+                if (response.data.success) {
+                    // Remove item from DOM
+                    document.querySelector(`[data-cart-item-id="${cartItemId}"]`).remove();
+                    updateCartTotals();
+                    
+                    // Reload page if no items left
+                    if (document.querySelectorAll('[data-cart-item-id]').length === 0) {
+                        location.reload();
+                    }
+                } else {
+                    alert(response.data.message || 'Gagal menghapus produk dari keranjang');
+                }
+            } catch (error) {
+                console.error('Error removing cart item:', error);
+                if (error.response && error.response.data && error.response.data.message) {
+                    alert(error.response.data.message);
+                } else {
+                    alert('Gagal menghapus produk dari keranjang');
+                }
+            }
+        }
+
+        function updateCartTotals() {
+            const checkboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+            let total = 0;
+            let count = 0;
+            
+            checkboxes.forEach(checkbox => {
+                const price = parseFloat(checkbox.dataset.price);
+                const quantity = parseInt(checkbox.dataset.quantity);
+                total += price * quantity;
+                count++;
+            });
+            
+            // Update display
+            document.getElementById('selected-count').textContent = count;
+            document.getElementById('selected-total').textContent = formatCurrency(total);
+            
+            const selectedInfo = document.getElementById('selected-items-info');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const checkoutText = document.getElementById('checkout-text');
+            
+            if (count > 0) {
+                selectedInfo.classList.remove('hidden');
+                checkoutBtn.disabled = false;
+                checkoutText.textContent = `Beli (${count})`;
+            } else {
+                selectedInfo.classList.add('hidden');
+                checkoutBtn.disabled = true;
+                checkoutText.textContent = 'Pilih produk untuk checkout';
+            }
+        }
+
+        function proceedToCheckout() {
+            const checkboxes = document.querySelectorAll('.cart-item-checkbox:checked');
+            const selectedItems = Array.from(checkboxes).map(cb => 
+                cb.closest('[data-cart-item-id]').dataset.cartItemId
+            );
+            
+            if (selectedItems.length === 0) {
+                alert('Pilih produk yang ingin dibeli');
+                return;
+            }
+            
+            // Redirect to checkout with selected items
+            const params = selectedItems.map(id => `items[]=${id}`).join('&');
+            window.location.href = `/checkout?${params}`;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Select all functionality
+            const selectAllCheckbox = document.getElementById('select-all');
+            if (selectAllCheckbox) {
+                selectAllCheckbox.addEventListener('change', function() {
+                    const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                    updateCartTotals();
+                });
+            }
+
+            // Individual checkbox change
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('cart-item-checkbox')) {
+                    updateCartTotals();
+                    
+                    // Update select all checkbox
+                    const checkboxes = document.querySelectorAll('.cart-item-checkbox');
+                    const checkedBoxes = document.querySelectorAll('.cart-item-checkbox:checked');
+                    const selectAll = document.getElementById('select-all');
+                    
+                    if (selectAll) {
+                        selectAll.checked = checkboxes.length === checkedBoxes.length;
+                        selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < checkboxes.length;
+                    }
+                }
+            });
+        });
+    </script>
 </x-app-layout>

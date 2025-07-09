@@ -37,7 +37,7 @@ class ProductController extends Controller
         $data = [
             'name' => $request->name,
             'slug' => str_replace(' ', '-', strtolower($request->name)),
-            'category_id' => 1,
+            'category_id' => $request->category_id,
             'description' => $request->description,
             'price' => $request->price,
             'stock' => $request->stock,
@@ -59,6 +59,22 @@ class ProductController extends Controller
             return response()->json($produk);
         } else {
             return response()->json(['error' => 'Produk tidak ditemukan'], 404);
+        }
+    }
+
+    public function show(Request $request)
+    {
+        $product = Product::with('category')->find($request->id);
+        if ($product) {
+            return response()->json([
+                'success' => true,
+                'data' => $product
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
         }
     }
 

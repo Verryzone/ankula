@@ -47,7 +47,7 @@ class MidtransService
             // Prepare transaction data
             $transactionDetails = [
                 'order_id' => $order->order_number,
-                'gross_amount' => (int) $order->total_amount,
+                'gross_amount' => (int) ($order->total_amount + $order->shipping_cost),
             ];
 
             // Customer details
@@ -58,11 +58,11 @@ class MidtransService
             ];
 
             // Add billing address if shipping address exists
-            if ($order->shipping_address && is_array($order->shipping_address)) {
-                $shippingAddr = $order->shipping_address;
+            if ($order->shipping_address_snapshot && is_array($order->shipping_address_snapshot)) {
+                $shippingAddr = $order->shipping_address_snapshot;
                 $customerDetails['billing_address'] = [
                     'first_name' => $order->user->name,
-                    'address' => $shippingAddr['address'] ?? 'Default Address',
+                    'address' => $shippingAddr['address_line'] ?? 'Default Address',
                     'city' => $shippingAddr['city'] ?? 'Default City',
                     'postal_code' => $shippingAddr['postal_code'] ?? '12345',
                     'country_code' => 'IDN'
@@ -80,6 +80,16 @@ class MidtransService
                 ];
             }
 
+            // Add shipping cost as separate item if exists
+            if ($order->shipping_cost > 0) {
+                $itemDetails[] = [
+                    'id' => 'shipping',
+                    'price' => (int) $order->shipping_cost,
+                    'quantity' => 1,
+                    'name' => 'Ongkos Kirim'
+                ];
+            }
+
             $transactionData = [
                 'transaction_details' => $transactionDetails,
                 'customer_details' => $customerDetails,
@@ -89,20 +99,33 @@ class MidtransService
             // Log transaction data for debugging
             Log::info('Creating Midtrans transaction', [
                 'order_id' => $order->order_number,
-                'gross_amount' => $transactionDetails['gross_amount']
+                'gross_amount' => $transactionDetails['gross_amount'],
+                'item_details' => $itemDetails,
+                'customer_details' => $customerDetails
             ]);
 
             // Create snap token
             $snapToken = Snap::getSnapToken($transactionData);
 
+            // Create payment record
+            $payment = Payment::create([
+                'order_id' => $order->id,
+                'payment_method' => 'midtrans',
+                'amount' => $order->total_amount + $order->shipping_cost,
+                'status' => 'pending',
+                'transaction_id' => $order->order_number
+            ]);
+
             Log::info('Midtrans Snap token created successfully', [
                 'order_id' => $order->order_number,
+                'payment_id' => $payment->id,
                 'snap_token' => substr($snapToken, 0, 20) . '...'
             ]);
 
             return [
                 'success' => true,
-                'snap_token' => $snapToken
+                'snap_token' => $snapToken,
+                'payment' => $payment
             ];
 
         } catch (Exception $e) {

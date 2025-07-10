@@ -132,6 +132,12 @@ class CheckoutController extends Controller
             return redirect()->route('login');
         }
 
+        // Log incoming request for debugging
+        Log::info('Checkout process started', [
+            'user_id' => $user->id,
+            'request_data' => $request->all()
+        ]);
+
         $request->validate([
             'items' => 'required|array|min:1',
             'items.*' => 'exists:cart_items,id',
@@ -146,6 +152,7 @@ class CheckoutController extends Controller
             $cart = Cart::where('user_id', $user->id)->first();
             
             if (!$cart) {
+                Log::error('Cart not found during checkout', ['user_id' => $user->id]);
                 return redirect()->route('cart.list')->with('error', 'Keranjang tidak ditemukan');
             }
 
@@ -155,14 +162,33 @@ class CheckoutController extends Controller
                 ->with(['product'])
                 ->get();
 
+            Log::info('Selected items for checkout', [
+                'user_id' => $user->id,
+                'cart_id' => $cart->id,
+                'requested_items' => $request->items,
+                'found_items' => $selectedItems->pluck('id')->toArray(),
+                'selected_items_count' => $selectedItems->count()
+            ]);
+
             if ($selectedItems->isEmpty()) {
-                return redirect()->route('cart.list')->with('error', 'Item yang dipilih tidak ditemukan');
+                Log::error('No items found for checkout', [
+                    'user_id' => $user->id,
+                    'requested_items' => $request->items,
+                    'cart_items_available' => $cart->cartItems()->pluck('id')->toArray()
+                ]);
+                return redirect()->route('cart.list')->with('error', 'Item yang dipilih tidak ditemukan. Pastikan produk masih ada di keranjang Anda.');
             }
 
             // Validate stock availability again
             foreach ($selectedItems as $item) {
                 if ($item->quantity > $item->product->stock) {
                     DB::rollBack();
+                    Log::warning('Insufficient stock during checkout', [
+                        'user_id' => $user->id,
+                        'product_id' => $item->product->id,
+                        'requested_quantity' => $item->quantity,
+                        'available_stock' => $item->product->stock
+                    ]);
                     return redirect()->route('checkout', ['items' => $request->items])
                         ->with('error', "Stock {$item->product->name} tidak mencukupi. Tersedia: {$item->product->stock}");
                 }
@@ -175,6 +201,10 @@ class CheckoutController extends Controller
 
             if (!$shippingAddress) {
                 DB::rollBack();
+                Log::error('Invalid shipping address', [
+                    'user_id' => $user->id,
+                    'address_id' => $request->shipping_address_id
+                ]);
                 return redirect()->back()->with('error', 'Alamat pengiriman tidak valid');
             }
 

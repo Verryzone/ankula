@@ -3,6 +3,7 @@
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\AddressController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +31,14 @@ Route::prefix('cart')
         Route::get('/', [CartController::class, 'getCart'])->name('api.cart.get');
         Route::put('/update/{id}', [CartController::class, 'updateCartItem'])->name('api.cart.update');
         Route::delete('/remove/{id}', [CartController::class, 'removeCartItem'])->name('api.cart.remove');
+    });
+
+// Address routes - requires authentication and session
+Route::prefix('addresses')
+    ->middleware(['web', 'auth', 'role:customer'])
+    ->group(function () {
+        Route::post('/', [AddressController::class, 'store'])->name('api.addresses.store');
+        Route::get('/', [AddressController::class, 'index'])->name('api.addresses.index');
+        Route::put('/{id}', [AddressController::class, 'update'])->name('api.addresses.update');
+        Route::delete('/{id}', [AddressController::class, 'destroy'])->name('api.addresses.destroy');
     });

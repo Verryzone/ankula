@@ -32,7 +32,39 @@ function selectedDropdown($submenu = [])
       return 'hidden';
 }
 
+function getOrderStatusBadgeClass($status)
+{
+    switch ($status) {
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 'processing':
+            return 'bg-blue-100 text-blue-800 border-blue-200';
+        case 'completed':
+            return 'bg-green-100 text-green-800 border-green-200';
+        case 'cancelled':
+            return 'bg-red-100 text-red-800 border-red-200';
+        default:
+            return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+}
 
+function getPaymentStatusBadgeClass($status)
+{
+    switch ($status) {
+        case 'pending':
+            return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        case 'success':
+            return 'bg-green-100 text-green-800 border-green-200';
+        case 'failed':
+            return 'bg-red-100 text-red-800 border-red-200';
+        default:
+            return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+}
 
+function formatOrderStatus($status)
+{
+    return ucfirst(str_replace('_', ' ', $status));
+}
 
 ?>

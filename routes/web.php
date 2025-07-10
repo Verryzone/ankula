@@ -5,6 +5,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\ManagementController;
+use App\Http\Controllers\ManagementOrderController;
 use App\Http\Controllers\ManagementProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
@@ -59,6 +60,12 @@ Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function 
     Route::get('/category', [CategoryController::class, 'list'])->name('management.category.list');
     Route::post('/category', [CategoryController::class, 'add'])->name('management.category.add');
     Route::delete('/category', [CategoryController::class, 'destroy'])->name('management.category.destroy');
+
+    // Order management routes
+    Route::get('/orders', [ManagementOrderController::class, 'index'])->name('management.orders.index');
+    Route::get('/orders/{id}', [ManagementOrderController::class, 'show'])->name('management.orders.show');
+    Route::patch('/orders/{id}/status', [ManagementOrderController::class, 'updateStatus'])->name('management.orders.update-status');
+    Route::post('/orders/bulk-update', [ManagementOrderController::class, 'bulkUpdateStatus'])->name('management.orders.bulk-update');
 
     // Admin profile
     Route::get('/profile', [ManagementProfileController::class, 'edit'])->name('management.profile.edit');

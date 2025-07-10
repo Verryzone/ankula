@@ -64,7 +64,7 @@ class OrderController extends Controller
     /**
      * Show order details
      */
-    public function show($orderNumber)
+    public function show($id)
     {
         $user = Auth::user();
         
@@ -72,7 +72,7 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $order = Order::where('order_number', $orderNumber)
+        $order = Order::where('id', $id)
                      ->where('user_id', $user->id)
                      ->with([
                          'orderItems.product.category',
@@ -82,7 +82,7 @@ class OrderController extends Controller
                      ->first();
 
         if (!$order) {
-            return redirect()->route('orders.index')->with('error', 'Pesanan tidak ditemukan');
+            return redirect()->route('orders.index')->with('error', 'Pesanan tidak ditemukan atau tidak memiliki akses');
         }
 
         return view('pages.orders.detail', compact('order'));
@@ -91,7 +91,7 @@ class OrderController extends Controller
     /**
      * Cancel order (only if pending)
      */
-    public function cancel($orderNumber)
+    public function cancel($id)
     {
         $user = Auth::user();
         
@@ -99,16 +99,16 @@ class OrderController extends Controller
             return redirect()->route('login');
         }
 
-        $order = Order::where('order_number', $orderNumber)
+        $order = Order::where('id', $id)
                      ->where('user_id', $user->id)
                      ->first();
 
         if (!$order) {
-            return redirect()->route('orders.index')->with('error', 'Pesanan tidak ditemukan');
+            return redirect()->route('orders.index')->with('error', 'Pesanan tidak ditemukan atau tidak memiliki akses');
         }
 
         if ($order->status !== 'pending') {
-            return redirect()->route('orders.show', $orderNumber)
+            return redirect()->route('orders.show', $id)
                            ->with('error', 'Pesanan tidak dapat dibatalkan');
         }
 
@@ -128,7 +128,7 @@ class OrderController extends Controller
 
             Log::info('Order cancelled by user', [
                 'user_id' => $user->id,
-                'order_number' => $orderNumber
+                'order_id' => $id
             ]);
 
             return redirect()->route('orders.index')->with('success', 'Pesanan berhasil dibatalkan');
@@ -136,11 +136,11 @@ class OrderController extends Controller
         } catch (\Exception $e) {
             Log::error('Failed to cancel order', [
                 'user_id' => $user->id,
-                'order_number' => $orderNumber,
+                'order_id' => $id,
                 'error' => $e->getMessage()
             ]);
 
-            return redirect()->route('orders.show', $orderNumber)
+            return redirect()->route('orders.show', $id)
                            ->with('error', 'Gagal membatalkan pesanan');
         }
     }

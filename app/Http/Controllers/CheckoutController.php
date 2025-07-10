@@ -354,7 +354,7 @@ class CheckoutController extends Controller
     /**
      * Retry payment with existing order
      */
-    public function retryPayment(Request $request, $orderNumber)
+    public function retryPayment(Request $request, $id)
     {
         $user = Auth::user();
         
@@ -362,16 +362,16 @@ class CheckoutController extends Controller
             return redirect()->route('login');
         }
 
-        $order = Order::where('order_number', $orderNumber)
+        $order = Order::where('id', $id)
                      ->where('user_id', $user->id)
                      ->first();
 
         if (!$order) {
-            return redirect()->route('dashboard')->with('error', 'Pesanan tidak ditemukan');
+            return redirect()->route('orders.index')->with('error', 'Pesanan tidak ditemukan atau tidak memiliki akses');
         }
 
         if ($order->status !== 'pending') {
-            return redirect()->route('dashboard')->with('error', 'Pesanan sudah diproses');
+            return redirect()->route('orders.index')->with('error', 'Pesanan sudah diproses atau tidak dapat dibayar ulang');
         }
 
         // Check existing payment

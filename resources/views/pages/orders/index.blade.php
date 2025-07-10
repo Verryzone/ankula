@@ -158,7 +158,7 @@
                                     @foreach($order->orderItems->take(2) as $item)
                                         <div class="flex items-center gap-3">
                                             @if($item->product->image)
-                                                <img src="{{ asset('storage/' . $item->product->image) }}" 
+                                                <img src="{{ asset('storage/products/images/' . $item->product->image) }}" 
                                                      alt="{{ $item->product->name }}" 
                                                      class="w-12 h-12 object-cover rounded">
                                             @else
@@ -191,20 +191,20 @@
                                 </div>
                                 
                                 <div class="space-y-2">
-                                    <a href="{{ route('orders.show', $order->order_number) }}" 
+                                    <a href="{{ route('orders.show', $order->id) }}" 
                                        class="block w-full px-4 py-2 bg-blue-600 text-white text-center rounded-md hover:bg-blue-700 transition duration-300">
                                         Lihat Detail
                                     </a>
                                     
                                     @if($order->status === 'pending' && $order->payment && $order->payment->status === 'pending')
-                                        <a href="{{ route('payment.retry', $order->order_number) }}" 
+                                        <a href="{{ route('payment.retry', $order->id) }}" 
                                            class="block w-full px-4 py-2 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transition duration-300">
                                             Bayar Sekarang
                                         </a>
                                     @endif
                                     
                                     @if($order->status === 'pending')
-                                        <form action="{{ route('orders.cancel', $order->order_number) }}" method="POST" 
+                                        <form action="{{ route('orders.cancel', $order->id) }}" method="POST" 
                                               onsubmit="return confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')">
                                             @csrf
                                             @method('PATCH')

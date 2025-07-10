@@ -110,13 +110,37 @@ class ProductDetailModal {
         const buttonContainer = $('#actionButtons');
         buttonContainer.empty();
 
+        // Add inline styles to ensure buttons are always styled
+        const buttonBaseStyle = `
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            padding: 12px 24px !important;
+            font-weight: 600 !important;
+            border-radius: 8px !important;
+            transition: all 0.2s ease-in-out !important;
+            text-decoration: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+            margin-bottom: 12px !important;
+            font-size: 16px !important;
+        `;
+
         if (!this.isAuthenticated) {
             // Show login prompt for guests
             buttonContainer.html(`
                 <div class="text-center space-y-3">
-                    <p class="text-gray-600">Silakan login untuk melakukan pembelian</p>
-                    <a href="/login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 inline-block text-center">
-                        Login Sekarang
+                    <p class="text-gray-600 mb-4">Silakan login untuk melakukan pembelian</p>
+                    <a href="/login" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 inline-block text-center shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                       style="${buttonBaseStyle} background-color: #2563eb !important; color: white !important;">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                            </svg>
+                            Login Sekarang
+                        </span>
                     </a>
                 </div>
             `);
@@ -124,11 +148,23 @@ class ProductDetailModal {
             // Show customer actions
             buttonContainer.html(`
                 <div class="space-y-3">
-                    <button id="btnBuyNow" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                        Beli Sekarang
+                    <button id="btnBuyNow" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" 
+                            style="${buttonBaseStyle} background-color: #2563eb !important; color: white !important;">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-4 4"></path>
+                            </svg>
+                            Beli Sekarang
+                        </span>
                     </button>
-                    <button id="btnAddToCart" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                        Masukkan Keranjang
+                    <button id="btnAddToCart" class="w-full bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" 
+                            style="${buttonBaseStyle} background-color: #1f2937 !important; color: white !important;">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 1.5M7 13l-1.5-1.5M17 21a2 2 0 100-4 2 2 0 000 4zM9 21a2 2 0 100-4 2 2 0 000 4z"></path>
+                            </svg>
+                            Masukkan Keranjang
+                        </span>
                     </button>
                 </div>
             `);
@@ -136,15 +172,30 @@ class ProductDetailModal {
             // Show admin actions
             buttonContainer.html(`
                 <div class="space-y-3">
-                    <button onclick="edit_product(${this.currentProduct.id})" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                        Edit Produk
+                    <button onclick="edit_product(${this.currentProduct.id})" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2" 
+                            style="${buttonBaseStyle} background-color: #059669 !important; color: white !important;">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Edit Produk
+                        </span>
                     </button>
-                    <button onclick="push_state(${this.currentProduct.id})" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                        Hapus Produk
+                    <button onclick="push_state(${this.currentProduct.id})" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2" 
+                            style="${buttonBaseStyle} background-color: #dc2626 !important; color: white !important;">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Hapus Produk
+                        </span>
                     </button>
                 </div>
             `);
         }
+
+        // Add hover effects using JavaScript since CSS might not work
+        this.addButtonHoverEffects();
     }
 
     /**
@@ -224,7 +275,11 @@ class ProductDetailModal {
 
             if (response.data.success) {
                 $btnAddToCart
-                    .text('Berhasil Ditambahkan!')
+                    .text('✓ Berhasil Ditambahkan!')
+                    .css({
+                        'background-color': '#059669',
+                        'color': 'white'
+                    })
                     .removeClass('bg-gray-800 hover:bg-gray-900')
                     .addClass('bg-green-600 hover:bg-green-700');
                 
@@ -263,6 +318,10 @@ class ProductDetailModal {
                 $btnAddToCart
                     .text(originalText)
                     .prop('disabled', false)
+                    .css({
+                        'background-color': '#1f2937',
+                        'color': 'white'
+                    })
                     .removeClass('bg-green-600 hover:bg-green-700')
                     .addClass('bg-gray-800 hover:bg-gray-900');
             }, 2000);
@@ -289,6 +348,68 @@ class ProductDetailModal {
      */
     showError(message) {
         alert(message); // You can replace this with a more elegant notification system
+    }
+
+    /**
+     * Add hover effects to buttons using JavaScript
+     */
+    addButtonHoverEffects() {
+        // Remove any existing event listeners to avoid duplicates
+        $('#actionButtons').off('mouseenter mouseleave');
+        
+        // Add hover effects
+        $('#actionButtons').on('mouseenter', 'button, a', function() {
+            const $this = $(this);
+            const id = $this.attr('id');
+            const onclick = $this.attr('onclick');
+            
+            // Apply hover effects based on button type
+            if (id === 'btnBuyNow' || $this.attr('href') === '/login') {
+                $this.css('background-color', '#1d4ed8');
+            } else if (id === 'btnAddToCart') {
+                $this.css('background-color', '#111827');
+            } else if (onclick && onclick.includes('edit_product')) {
+                $this.css('background-color', '#047857');
+            } else if (onclick && onclick.includes('push_state')) {
+                $this.css('background-color', '#b91c1c');
+            }
+            
+            $this.css({
+                'transform': 'translateY(-2px) scale(1.02)',
+                'box-shadow': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+            });
+        });
+        
+        $('#actionButtons').on('mouseleave', 'button, a', function() {
+            const $this = $(this);
+            const id = $this.attr('id');
+            const onclick = $this.attr('onclick');
+            
+            // Reset to original colors
+            if (id === 'btnBuyNow' || $this.attr('href') === '/login') {
+                $this.css('background-color', '#2563eb');
+            } else if (id === 'btnAddToCart') {
+                $this.css('background-color', '#1f2937');
+            } else if (onclick && onclick.includes('edit_product')) {
+                $this.css('background-color', '#059669');
+            } else if (onclick && onclick.includes('push_state')) {
+                $this.css('background-color', '#dc2626');
+            }
+            
+            $this.css({
+                'transform': 'translateY(0) scale(1)',
+                'box-shadow': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            });
+        });
+        
+        // Add click effects
+        $('#actionButtons').on('mousedown', 'button, a', function() {
+            $(this).css('transform', 'translateY(0) scale(0.95)');
+        });
+        
+        $('#actionButtons').on('mouseup', 'button, a', function() {
+            $(this).css('transform', 'translateY(-2px) scale(1.02)');
+        });
     }
 }
 

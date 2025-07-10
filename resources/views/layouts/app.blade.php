@@ -13,6 +13,13 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
+        <!-- Custom CSS for modal buttons -->
+        <link rel="stylesheet" href="{{ asset('css/modal-buttons.css') }}">
+        
+        <!-- Font Awesome for icons -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        
         <script>
             if (localStorage.getItem('color-theme') === 'dark') {
                 document.documentElement.classList.add('dark');

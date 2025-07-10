@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\ManagementProfileController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +32,11 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/payment/success', [CheckoutController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('/payment/failed', [CheckoutController::class, 'paymentFailed'])->name('payment.failed');
     Route::get('/payment/retry/{orderNumber}', [CheckoutController::class, 'retryPayment'])->name('payment.retry');
+
+    // Order routes
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{orderNumber}', [OrderController::class, 'show'])->name('orders.show');
+    Route::patch('/orders/{orderNumber}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

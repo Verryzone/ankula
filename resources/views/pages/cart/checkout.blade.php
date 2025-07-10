@@ -64,8 +64,41 @@
 
                     <!-- Delivery Information -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
-                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Informasi Pengiriman</h3>
-                        <div class="space-y-3">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Alamat Pengiriman</h3>
+                        
+                        @if($addresses && $addresses->count() > 0)
+                            <div class="space-y-3 mb-4">
+                                @foreach($addresses as $address)
+                                <label class="flex items-start gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors {{ $address->is_default ? 'border-indigo-500 bg-indigo-50' : '' }}">
+                                    <input type="radio" name="shipping_address_id" value="{{ $address->id }}" 
+                                           class="mt-1" {{ $address->is_default ? 'checked' : '' }} required>
+                                    <div class="flex-1">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="font-medium text-gray-900">{{ $address->label }}</span>
+                                            @if($address->is_default)
+                                                <span class="px-2 py-1 bg-indigo-100 text-indigo-800 text-xs rounded-full">Default</span>
+                                            @endif
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-1">{{ $address->recipient_name }} - {{ $address->phone_number }}</p>
+                                        <p class="text-sm text-gray-600">{{ $address->full_address }}</p>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-4">
+                                <p class="text-gray-500 mb-3">Belum ada alamat pengiriman</p>
+                                <a href="#" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Tambah Alamat
+                                </a>
+                            </div>
+                        @endif
+
+                        <!-- Shipping Info -->
+                        <div class="border-t border-gray-100 pt-4 space-y-3">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
                                     <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
@@ -86,9 +119,31 @@
                                 </div>
                                 <div>
                                     <p class="font-medium text-gray-900">Ongkos Kirim</p>
-                                    <p class="text-sm text-green-600 font-medium">Gratis Ongkir</p>
+                                    <p class="text-sm text-green-600 font-medium">{{ formatCurrency($shippingCost) }}</p>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Metode Pembayaran</h3>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-indigo-300 transition-colors">
+                                <input type="radio" name="payment_method" value="midtrans" class="text-indigo-600" checked required>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900">Midtrans Payment Gateway</p>
+                                        <p class="text-sm text-gray-600">Kartu Kredit, Transfer Bank, E-Wallet, QRIS</p>
+                                    </div>
+                                </div>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -132,6 +187,8 @@
                             @foreach($selectedItems as $item)
                             <input type="hidden" name="items[]" value="{{ $item->id }}">
                             @endforeach
+                            <input type="hidden" name="shipping_address_id" id="selectedAddressId">
+                            <input type="hidden" name="payment_method" value="midtrans">
                             
                             <button type="submit" id="payButton"
                                 class="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 rounded-lg transition duration-300 shadow-sm">
@@ -162,9 +219,30 @@
             const form = document.getElementById('checkoutForm');
             const payButton = document.getElementById('payButton');
             const payButtonText = document.getElementById('payButtonText');
+            const selectedAddressInput = document.getElementById('selectedAddressId');
+
+            // Handle address selection
+            const addressRadios = document.querySelectorAll('input[name="shipping_address_id"]');
+            addressRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    selectedAddressInput.value = this.value;
+                });
+            });
+
+            // Set initial address if default exists
+            const defaultAddress = document.querySelector('input[name="shipping_address_id"]:checked');
+            if (defaultAddress) {
+                selectedAddressInput.value = defaultAddress.value;
+            }
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
+                
+                // Check if address is selected
+                if (!selectedAddressInput.value) {
+                    alert('Silakan pilih alamat pengiriman terlebih dahulu.');
+                    return;
+                }
                 
                 // Show confirmation
                 const confirmed = confirm('Konfirmasi pembayaran sebesar {{ formatCurrency($total) }}?');

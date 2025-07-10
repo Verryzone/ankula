@@ -26,11 +26,18 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    
+    // Payment routes
+    Route::get('/payment/success', [CheckoutController::class, 'paymentSuccess'])->name('payment.success');
+    Route::get('/payment/failed', [CheckoutController::class, 'paymentFailed'])->name('payment.failed');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+// Midtrans notification handler (no auth needed)
+Route::post('/payment/notification', [CheckoutController::class, 'handleNotification'])->name('payment.notification');
 
 Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [ManagementController::class, 'index'])->name('management.index');

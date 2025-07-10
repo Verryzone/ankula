@@ -92,22 +92,22 @@
                             <div class="w-8 h-8 rounded-full flex items-center justify-center {{ $isActive ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-400' }}">
                                 @if($isCurrent && $order->status !== 'cancelled')
                                     <div class="w-3 h-3 bg-white rounded-full"></div>
-                @elseif($isActive)
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                    </svg>
-                @else
-                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
-                @endif
+                                @elseif($isActive)
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                    </svg>
+                                @else
+                                    <div class="w-3 h-3 bg-gray-400 rounded-full"></div>
+                                @endif
                             </div>
-            <div class="ml-4">
-                <p class="font-medium {{ $isActive ? 'text-gray-900' : 'text-gray-500' }}">
-                    {{ $statusLabels[$status] ?? ucfirst($status) }}
-                </p>
-                @if($isCurrent)
-                    <p class="text-sm text-gray-600">Status saat ini</p>
-                @endif
-            </div>
+                            <div class="ml-4">
+                                <p class="font-medium {{ $isActive ? 'text-gray-900' : 'text-gray-500' }}">
+                                    {{ $statusLabels[$status] ?? ucfirst($status) }}
+                                </p>
+                                @if($isCurrent)
+                                    <p class="text-sm text-gray-600">Status saat ini</p>
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>

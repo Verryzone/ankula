@@ -8,6 +8,7 @@ use Midtrans\Transaction;
 use App\Models\Order;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Log;
+use Exception;
 
 class MidtransService
 {
@@ -15,9 +16,9 @@ class MidtransService
     {
         // Set konfigurasi Midtrans
         Config::$serverKey = config('midtrans.serverKey');
-        Config::$isProduction = config('midtrans.isProduction');
-        Config::$isSanitized = config('midtrans.isSanitized');
-        Config::$is3ds = config('midtrans.is3ds');
+        Config::$isProduction = config('midtrans.isProduction', false);
+        Config::$isSanitized = config('midtrans.isSanitized', true);
+        Config::$is3ds = config('midtrans.is3ds', true);
     }
 
     /**
@@ -26,93 +27,91 @@ class MidtransService
     public function createTransaction(Order $order)
     {
         try {
-            // Prepare transaction details
+            // Validate server key
+            if (empty(config('midtrans.serverKey'))) {
+                throw new Exception('Midtrans server key tidak dikonfigurasi. Silakan periksa file .env');
+            }
+
+            // Log config for debugging
+            Log::info('Midtrans Config', [
+                'serverKey' => substr(config('midtrans.serverKey'), 0, 10) . '...',
+                'isProduction' => config('midtrans.isProduction'),
+            ]);
+
+            // Configure Midtrans again to ensure it's set
+            Config::$serverKey = config('midtrans.serverKey');
+            Config::$isProduction = config('midtrans.isProduction');
+            Config::$isSanitized = config('midtrans.isSanitized');
+            Config::$is3ds = config('midtrans.is3ds');
+
+            // Prepare transaction data
             $transactionDetails = [
                 'order_id' => $order->order_number,
-                'gross_amount' => (int) ($order->total_amount + $order->shipping_cost),
+                'gross_amount' => (int) $order->total_amount,
             ];
 
-            // Prepare item details
+            // Customer details
+            $customerDetails = [
+                'first_name' => $order->user->name,
+                'email' => $order->user->email,
+                'phone' => $order->user->phone ?? '08111222333'
+            ];
+
+            // Add billing address if shipping address exists
+            if ($order->shipping_address && is_array($order->shipping_address)) {
+                $shippingAddr = $order->shipping_address;
+                $customerDetails['billing_address'] = [
+                    'first_name' => $order->user->name,
+                    'address' => $shippingAddr['address'] ?? 'Default Address',
+                    'city' => $shippingAddr['city'] ?? 'Default City',
+                    'postal_code' => $shippingAddr['postal_code'] ?? '12345',
+                    'country_code' => 'IDN'
+                ];
+            }
+
+            // Item details
             $itemDetails = [];
             foreach ($order->orderItems as $item) {
                 $itemDetails[] = [
                     'id' => $item->product_id,
                     'price' => (int) $item->price,
                     'quantity' => $item->quantity,
-                    'name' => $item->product->name,
+                    'name' => $item->product->name ?? 'Product'
                 ];
             }
 
-            // Add shipping cost as item if exists
-            if ($order->shipping_cost > 0) {
-                $itemDetails[] = [
-                    'id' => 'shipping',
-                    'price' => (int) $order->shipping_cost,
-                    'quantity' => 1,
-                    'name' => 'Ongkos Kirim',
-                ];
-            }
-
-            // Customer details
-            $customerDetails = [
-                'first_name' => $order->user->name,
-                'email' => $order->user->email,
-                'phone' => $order->shippingAddress ? $order->shippingAddress->phone_number : '',
-            ];
-
-            // Shipping address
-            if ($order->shippingAddress) {
-                $customerDetails['shipping_address'] = [
-                    'first_name' => $order->shippingAddress->recipient_name,
-                    'phone' => $order->shippingAddress->phone_number,
-                    'address' => $order->shippingAddress->address_line,
-                    'city' => $order->shippingAddress->city,
-                    'postal_code' => $order->shippingAddress->postal_code,
-                    'country_code' => 'IDN'
-                ];
-            }
-
-            // Transaction data
             $transactionData = [
                 'transaction_details' => $transactionDetails,
-                'item_details' => $itemDetails,
                 'customer_details' => $customerDetails,
-                'enabled_payments' => [
-                    'credit_card', 'bca_va', 'bni_va', 'bri_va', 
-                    'echannel', 'other_va', 'gopay', 'shopeepay', 'qris'
-                ],
-                'vtweb' => [
-                    'enabled_payments' => [
-                        'credit_card', 'bca_va', 'bni_va', 'bri_va', 
-                        'echannel', 'other_va', 'gopay', 'shopeepay', 'qris'
-                    ]
-                ]
+                'item_details' => $itemDetails,
             ];
 
-            // Create transaction
+            // Log transaction data for debugging
+            Log::info('Creating Midtrans transaction', [
+                'order_id' => $order->order_number,
+                'gross_amount' => $transactionDetails['gross_amount']
+            ]);
+
+            // Create snap token
             $snapToken = Snap::getSnapToken($transactionData);
 
-            // Create payment record
-            $payment = Payment::create([
-                'order_id' => $order->id,
-                'payment_method' => 'midtrans',
-                'amount' => $order->total_amount + $order->shipping_cost,
-                'status' => 'pending',
-                'transaction_id' => $order->order_number,
+            Log::info('Midtrans Snap token created successfully', [
+                'order_id' => $order->order_number,
+                'snap_token' => substr($snapToken, 0, 20) . '...'
             ]);
 
             return [
                 'success' => true,
-                'snap_token' => $snapToken,
-                'payment' => $payment
+                'snap_token' => $snapToken
             ];
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::error('Midtrans transaction creation failed', [
-                'order_id' => $order->id,
-                'error' => $e->getMessage()
+                'order_id' => $order->order_number ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
             ]);
-
+            
             return [
                 'success' => false,
                 'message' => 'Gagal membuat transaksi pembayaran: ' . $e->getMessage()
@@ -146,20 +145,15 @@ class MidtransService
 
             if ($transactionStatus == 'capture') {
                 if ($fraudStatus == 'challenge') {
-                    // Handle challenge status
                     $payment->update(['status' => 'pending']);
                 } else if ($fraudStatus == 'accept') {
-                    // Payment success
                     $payment->markAsSuccess($orderId, $notification);
                 }
             } else if ($transactionStatus == 'settlement') {
-                // Payment success
                 $payment->markAsSuccess($orderId, $notification);
             } else if ($transactionStatus == 'pending') {
-                // Payment pending
                 $payment->update(['status' => 'pending']);
             } else if (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
-                // Payment failed
                 $payment->markAsFailed($notification);
             }
 

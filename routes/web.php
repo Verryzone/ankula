@@ -68,4 +68,14 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisteredUserController::class, 'store']);
 });
 
+Route::get('/test-midtrans-config', function() {
+    return [
+        'server_key' => config('midtrans.serverKey'),
+        'client_key' => config('midtrans.clientKey'),
+        'is_production' => config('midtrans.isProduction'),
+        'env_server_key' => env('MIDTRANS_SERVER_KEY'),
+        'env_client_key' => env('MIDTRANS_CLIENT_KEY'),
+    ];
+})->name('test.midtrans.config');
+
 require __DIR__.'/auth.php';

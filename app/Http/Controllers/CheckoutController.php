@@ -197,6 +197,7 @@ class CheckoutController extends Controller
             }
 
             // Create payment with Midtrans
+            $order->load(['orderItems.product', 'user', 'shippingAddress']);
             $paymentResult = $this->midtransService->createTransaction($order);
 
             if (!$paymentResult['success']) {

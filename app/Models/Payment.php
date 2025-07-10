@@ -16,6 +16,8 @@ class Payment extends Model
         'amount',
         'status',
         'transaction_id',
+        'snap_token',
+        'snap_token_expires_at',
         'payment_gateway_response',
         'paid_at'
     ];
@@ -23,7 +25,8 @@ class Payment extends Model
     protected $casts = [
         'amount' => 'decimal:2',
         'payment_gateway_response' => 'json',
-        'paid_at' => 'datetime'
+        'paid_at' => 'datetime',
+        'snap_token_expires_at' => 'datetime'
     ];
 
     /**
@@ -77,5 +80,21 @@ class Payment extends Model
             'status' => 'failed',
             'payment_gateway_response' => $gatewayResponse
         ]);
+    }
+
+    /**
+     * Check if snap token is still valid
+     */
+    public function isSnapTokenValid()
+    {
+        return $this->snap_token && $this->snap_token_expires_at && $this->snap_token_expires_at > now();
+    }
+
+    /**
+     * Get payment by order
+     */
+    public static function getByOrder($orderId)
+    {
+        return static::where('order_id', $orderId)->first();
     }
 }

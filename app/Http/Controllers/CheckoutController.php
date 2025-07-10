@@ -7,6 +7,7 @@ use App\Models\CartItem;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Addresses;
+use App\Models\Payment;
 use App\Services\MidtransService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -250,6 +251,28 @@ class CheckoutController extends Controller
 
             // Create payment with Midtrans
             $order->load(['orderItems.product', 'user', 'shippingAddress']);
+            
+            // Check if payment already exists for this order
+            $existingPayment = Payment::getByOrder($order->id);
+            
+            if ($existingPayment && $existingPayment->isSnapTokenValid()) {
+                // Use existing payment if snap token is still valid
+                Log::info('Using existing payment with valid snap token', [
+                    'order_id' => $order->id,
+                    'payment_id' => $existingPayment->id,
+                    'expires_at' => $existingPayment->snap_token_expires_at
+                ]);
+                
+                DB::commit();
+                
+                return view('pages.payment.process', [
+                    'order' => $order,
+                    'snapToken' => $existingPayment->snap_token,
+                    'payment' => $existingPayment
+                ]);
+            }
+            
+            // Create new payment if no existing valid payment
             $paymentResult = $this->midtransService->createTransaction($order);
 
             if (!$paymentResult['success']) {
@@ -326,5 +349,55 @@ class CheckoutController extends Controller
         $order = Order::where('order_number', $orderId)->first();
 
         return view('pages.payment.failed', compact('order'));
+    }
+
+    /**
+     * Retry payment with existing order
+     */
+    public function retryPayment(Request $request, $orderNumber)
+    {
+        $user = Auth::user();
+        
+        if (!$user || $user->role !== 'customer') {
+            return redirect()->route('login');
+        }
+
+        $order = Order::where('order_number', $orderNumber)
+                     ->where('user_id', $user->id)
+                     ->first();
+
+        if (!$order) {
+            return redirect()->route('dashboard')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($order->status !== 'pending') {
+            return redirect()->route('dashboard')->with('error', 'Pesanan sudah diproses');
+        }
+
+        // Check existing payment
+        $existingPayment = Payment::getByOrder($order->id);
+        
+        if ($existingPayment && $existingPayment->isSnapTokenValid()) {
+            // Use existing snap token
+            return view('pages.payment.process', [
+                'order' => $order,
+                'snapToken' => $existingPayment->snap_token,
+                'payment' => $existingPayment
+            ]);
+        }
+
+        // Create new payment if token expired
+        $order->load(['orderItems.product', 'user', 'shippingAddress']);
+        $paymentResult = $this->midtransService->createTransaction($order);
+
+        if (!$paymentResult['success']) {
+            return redirect()->back()->with('error', $paymentResult['message']);
+        }
+
+        return view('pages.payment.process', [
+            'order' => $order,
+            'snapToken' => $paymentResult['snap_token'],
+            'payment' => $paymentResult['payment']
+        ]);
     }
 }

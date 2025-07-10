@@ -113,7 +113,9 @@ class MidtransService
                 'payment_method' => 'midtrans',
                 'amount' => $order->total_amount + $order->shipping_cost,
                 'status' => 'pending',
-                'transaction_id' => $order->order_number
+                'transaction_id' => $order->order_number,
+                'snap_token' => $snapToken,
+                'snap_token_expires_at' => now()->addHours(24) // Snap token expired in 24 hours
             ]);
 
             Log::info('Midtrans Snap token created successfully', [

@@ -30,6 +30,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     // Payment routes
     Route::get('/payment/success', [CheckoutController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('/payment/failed', [CheckoutController::class, 'paymentFailed'])->name('payment.failed');
+    Route::get('/payment/retry/{orderNumber}', [CheckoutController::class, 'retryPayment'])->name('payment.retry');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

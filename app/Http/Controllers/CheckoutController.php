@@ -400,4 +400,50 @@ class CheckoutController extends Controller
             'payment' => $paymentResult['payment']
         ]);
     }
+
+    /**
+     * Manual check payment status (for debugging)
+     */
+    public function checkPaymentStatus(Request $request, $orderId)
+    {
+        try {
+            // Get order by order_number
+            $order = Order::where('order_number', $orderId)->first();
+            
+            if (!$order) {
+                return response()->json(['error' => 'Order not found'], 404);
+            }
+
+            // Check with Midtrans
+            $result = $this->midtransService->checkTransactionStatus($orderId);
+            
+            if ($result['success']) {
+                $status = $result['data'];
+                
+                // Update payment based on actual status
+                $payment = Payment::getByOrder($order->id);
+                if ($payment) {
+                    $transactionStatus = is_object($status) ? $status->transaction_status : $status['transaction_status'];
+                    
+                    if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                        $payment->markAsSuccess($orderId, $status);
+                    } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
+                        $payment->markAsFailed($status);
+                    } else {
+                        $payment->update(['status' => 'pending']);
+                    }
+                }
+                
+                return response()->json([
+                    'order' => $order->fresh(['payment']),
+                    'midtrans_status' => $status,
+                    'updated' => true
+                ]);
+            } else {
+                return response()->json(['error' => $result['message']], 400);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
 }

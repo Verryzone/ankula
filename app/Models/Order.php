@@ -31,7 +31,7 @@ class Order extends Model
      */
     public static function generateOrderNumber()
     {
-        $prefix = 'INV/' . date('Y/m') . '/';
+        $prefix = 'INV' . date('Ym'); // Format: INV202507
         $lastOrder = self::whereDate('created_at', today())
                          ->where('order_number', 'like', $prefix . '%')
                          ->orderBy('id', 'desc')
@@ -44,7 +44,7 @@ class Order extends Model
             $newNumber = '0001';
         }
         
-        return $prefix . $newNumber;
+        return $prefix . $newNumber; // Format: INV2025070001
     }
 
     /**

@@ -154,8 +154,16 @@ class MidtransService
             $transactionStatus = $notification['transaction_status'];
             $fraudStatus = $notification['fraud_status'] ?? 'accept';
 
-            // Find payment
+            // Find payment by transaction_id OR by order_number
             $payment = Payment::where('transaction_id', $orderId)->first();
+            
+            if (!$payment) {
+                // Try to find by order number (for migrated orders)
+                $order = Order::where('order_number', $orderId)->first();
+                if ($order) {
+                    $payment = Payment::getByOrder($order->id);
+                }
+            }
 
             if (!$payment) {
                 Log::warning('Payment not found for order: ' . $orderId);
@@ -165,7 +173,8 @@ class MidtransService
             Log::info('Midtrans notification received', [
                 'order_id' => $orderId,
                 'transaction_status' => $transactionStatus,
-                'fraud_status' => $fraudStatus
+                'fraud_status' => $fraudStatus,
+                'payment_id' => $payment->id
             ]);
 
             if ($transactionStatus == 'capture') {

@@ -50,6 +50,11 @@ class Payment extends Model
         return $query->where('status', 'success');
     }
 
+    public function scopePaid($query)
+    {
+        return $query->where('status', 'success');
+    }
+
     public function scopeFailed($query)
     {
         return $query->where('status', 'failed');
@@ -61,7 +66,7 @@ class Payment extends Model
     public function markAsSuccess($transactionId = null, $gatewayResponse = null)
     {
         $this->update([
-            'status' => 'success',
+            'status' => 'success',  // Use 'success' as defined in enum
             'transaction_id' => $transactionId,
             'payment_gateway_response' => $gatewayResponse,
             'paid_at' => now()

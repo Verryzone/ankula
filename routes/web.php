@@ -90,4 +90,29 @@ require __DIR__.'/auth.php';
 // Debug routes - Only for development
 if (app()->environment('local')) {
     require __DIR__.'/debug.php';
+    
+    // Debugging payment status
+    Route::get('/debug/payment/{orderId}', [CheckoutController::class, 'checkPaymentStatus'])->name('debug.payment.status');
+    
+    // Test webhook form
+    Route::get('/test-webhook', function() {
+        return view('test-webhook');
+    });
+    
+    // Manual webhook test
+    Route::get('/test-webhook-manual/{orderId}/{status}', function($orderId, $status) {
+        $notification = [
+            'order_id' => $orderId,
+            'transaction_status' => $status,
+            'fraud_status' => 'accept',
+            'payment_type' => 'bank_transfer',
+            'transaction_time' => date('Y-m-d H:i:s')
+        ];
+        
+        $checkoutController = new \App\Http\Controllers\CheckoutController(new \App\Services\MidtransService());
+        $request = new \Illuminate\Http\Request($notification);
+        $result = $checkoutController->handleNotification($request);
+        
+        return response()->json($result);
+    });
 }

@@ -150,18 +150,25 @@ class CartController extends Controller
                 // Update quantity if item already exists
                 $cartItem->quantity += $quantity;
                 $cartItem->save();
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produk berhasil ditambahkan ke keranjang',
+                    'cart_item_id' => $cartItem->id
+                ]);
             } else {
                 // Create new cart item
-                $cart->cartItems()->create([
+                $newCartItem = $cart->cartItems()->create([
                     'product_id' => $productId,
                     'quantity' => $quantity
                 ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Produk berhasil ditambahkan ke keranjang',
+                    'cart_item_id' => $newCartItem->id
+                ]);
             }
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Produk berhasil ditambahkan ke keranjang'
-            ]);
 
         } catch (\Exception $e) {
             Log::error('Cart add error', [

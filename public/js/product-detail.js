@@ -239,9 +239,104 @@ class ProductDetailModal {
         if (!this.currentProduct) return;
         
         const quantity = $('#quantity').val();
+        const $btnBuyNow = $('#btnBuyNow');
+        const originalText = 'Beli Sekarang'; // Fixed text since we use HTML content
         
-        // Redirect to checkout with selected product
-        window.location.href = `/checkout?product_id=${this.currentProduct.id}&quantity=${quantity}`;
+        // Show loading state
+        $btnBuyNow.html(`
+            <span class="flex items-center justify-center gap-2">
+                <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Memproses...
+            </span>
+        `).prop('disabled', true);
+        
+        // Add product to cart first, then redirect to checkout
+        this.buyNowProcess(quantity, $btnBuyNow, originalText);
+    }
+
+    /**
+     * Process buy now by adding to cart then redirecting to checkout
+     */
+    async buyNowProcess(quantity, $btnBuyNow, originalText) {
+        try {
+            // Get CSRF token
+            const token = $('meta[name="csrf-token"]').attr('content');
+            
+            // Add product to cart first
+            const response = await axios.post('/api/cart/add', {
+                product_id: this.currentProduct.id,
+                quantity: parseInt(quantity)
+            }, {
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                withCredentials: true
+            });
+
+            if (response.data.success) {
+                // Get the newly added cart item ID
+                const cartItemId = response.data.cart_item_id;
+                
+                // Show success message briefly
+                $btnBuyNow.html(`
+                    <span class="flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                        </svg>
+                        Berhasil! Mengarahkan...
+                    </span>
+                `).css('background-color', '#059669');
+                
+                // Redirect to checkout with the cart item
+                setTimeout(() => {
+                    if (cartItemId) {
+                        window.location.href = `/checkout?items[]=${cartItemId}`;
+                    } else {
+                        // Fallback: redirect to cart page
+                        window.location.href = '/cart';
+                    }
+                }, 1000);
+            } else {
+                this.showError('Gagal memproses pesanan');
+                this.resetBuyNowButton($btnBuyNow, originalText);
+            }
+        } catch (error) {
+            console.error('Error processing buy now:', error);
+            
+            if (error.response?.status === 401) {
+                this.showError('Silakan login terlebih dahulu');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 2000);
+            } else if (error.response?.status === 403) {
+                this.showError('Anda tidak memiliki akses untuk melakukan pembelian');
+            } else {
+                const errorMessage = error.response?.data?.message || 'Terjadi kesalahan saat memproses pesanan';
+                this.showError(errorMessage);
+            }
+            
+            this.resetBuyNowButton($btnBuyNow, originalText);
+        }
+    }
+
+    /**
+     * Reset buy now button to original state
+     */
+    resetBuyNowButton($btnBuyNow, originalText) {
+        $btnBuyNow
+            .html(`
+                <span class="flex items-center justify-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-4 4"></path>
+                    </svg>
+                    ${originalText}
+                </span>
+            `)
+            .prop('disabled', false);
     }
 
     /**
@@ -358,7 +453,7 @@ class ProductDetailModal {
         $('#actionButtons').off('mouseenter mouseleave');
         
         // Add hover effects
-        $('#actionButtons').on('mouseenter', 'button, a', function() {
+        $('#actionButtons').on('mouseenter', 'button:not([disabled]), a', function() {
             const $this = $(this);
             const id = $this.attr('id');
             const onclick = $this.attr('onclick');
@@ -380,7 +475,7 @@ class ProductDetailModal {
             });
         });
         
-        $('#actionButtons').on('mouseleave', 'button, a', function() {
+        $('#actionButtons').on('mouseleave', 'button:not([disabled]), a', function() {
             const $this = $(this);
             const id = $this.attr('id');
             const onclick = $this.attr('onclick');
@@ -402,13 +497,16 @@ class ProductDetailModal {
             });
         });
         
-        // Add click effects
-        $('#actionButtons').on('mousedown', 'button, a', function() {
+        // Add click effects (only for enabled buttons)
+        $('#actionButtons').on('mousedown', 'button:not([disabled]), a', function() {
             $(this).css('transform', 'translateY(0) scale(0.95)');
         });
         
-        $('#actionButtons').on('mouseup', 'button, a', function() {
-            $(this).css('transform', 'translateY(-2px) scale(1.02)');
+        $('#actionButtons').on('mouseup', 'button:not([disabled]), a', function() {
+            const $this = $(this);
+            if (!$this.prop('disabled')) {
+                $this.css('transform', 'translateY(-2px) scale(1.02)');
+            }
         });
     }
 }

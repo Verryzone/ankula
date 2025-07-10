@@ -103,16 +103,23 @@
     flex-shrink: 0 !important;
 }
 
-/* Loading state for add to cart */
-#btnAddToCart[disabled] {
+/* Loading state for buttons */
+#btnAddToCart[disabled],
+#btnBuyNow[disabled] {
     opacity: 0.7 !important;
     cursor: not-allowed !important;
     transform: none !important;
 }
 
-#btnAddToCart[disabled]:hover {
+#btnAddToCart[disabled]:hover,
+#btnBuyNow[disabled]:hover {
     transform: none !important;
-    background-color: #1f2937 !important;
+    background-color: inherit !important;
+}
+
+/* Specific loading state for buy now */
+#btnBuyNow[disabled] {
+    background-color: #6b7280 !important;
 }
 
 /* Success state for add to cart */
@@ -144,6 +151,20 @@
 #actionButtons a:active::before {
     width: 300px !important;
     height: 300px !important;
+}
+
+/* Spin animation for loading state */
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite !important;
 }
 
 /* Modal container fixes */

@@ -127,8 +127,8 @@
 
                         <!-- Subtotal -->
                         <div class="flex justify-between items-center mb-3">
-                            <span class="text-gray-600">Subtotal ({{ $totalItems }} item)</span>
-                            <span class="font-semibold text-gray-900">{{ formatCurrency($totalPrice) }}</span>
+                            <span class="text-gray-600">Subtotal (<span id="summary-item-count">0</span> item)</span>
+                            <span id="summary-subtotal" class="font-semibold text-gray-900">Rp0</span>
                         </div>
 
                         <!-- Shipping -->
@@ -140,7 +140,7 @@
                         <!-- Total -->
                         <div class="flex justify-between items-center mb-6 pb-6 border-b border-gray-100">
                             <span class="text-gray-600 font-medium">Total</span>
-                            <span id="total-price" class="text-3xl font-bold text-gray-900">{{ formatCurrency($totalPrice) }}</span>
+                            <span id="total-price" class="text-3xl font-bold text-gray-900">Rp0</span>
                         </div>
 
                         <!-- Selected Items Info -->
@@ -193,6 +193,63 @@
                 </div>
             </div>
             @endif
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto shadow-2xl transform transition-all">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-gray-100">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Hapus Produk</h3>
+                        <p class="text-sm text-gray-500">Konfirmasi penghapusan item dari keranjang</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Content -->
+            <div class="p-6">
+                <div class="mb-6">
+                    <p class="text-gray-700 mb-4">Apakah Anda yakin ingin menghapus produk ini dari keranjang belanja?</p>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-900" id="deleteProductName">Nama Produk</p>
+                                <p class="text-sm text-gray-500">Item akan dihapus secara permanen</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex gap-3">
+                    <button onclick="closeDeleteModal()" 
+                            class="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors">
+                        Batal
+                    </button>
+                    <button onclick="confirmDeleteItem()" 
+                            class="flex-1 px-4 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg transition-colors">
+                        <span class="flex items-center justify-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                            </svg>
+                            Hapus
+                        </span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -256,13 +313,43 @@
             }
         }
 
-        async function removeCartItem(cartItemId) {
-            if (!confirm('Hapus produk dari keranjang?')) return;
+        let itemToDelete = null;
+
+        function removeCartItem(cartItemId) {
+            // Get product name for the modal
+            const itemElement = document.querySelector(`[data-cart-item-id="${cartItemId}"]`);
+            const productName = itemElement.querySelector('h3').textContent.trim();
+            
+            // Set the product name in modal and store item ID
+            document.getElementById('deleteProductName').textContent = productName;
+            itemToDelete = cartItemId;
+            
+            // Show the delete modal
+            showDeleteModal();
+        }
+
+        function showDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDeleteModal() {
+            const modal = document.getElementById('deleteModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+            itemToDelete = null;
+        }
+
+        async function confirmDeleteItem() {
+            if (!itemToDelete) return;
             
             try {
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
                 
-                const response = await axios.delete(`/api/cart/remove/${cartItemId}`, {
+                const response = await axios.delete(`/api/cart/remove/${itemToDelete}`, {
                     headers: {
                         'X-CSRF-TOKEN': token
                     }
@@ -270,12 +357,16 @@
 
                 if (response.data.success) {
                     // Remove item from DOM
-                    document.querySelector(`[data-cart-item-id="${cartItemId}"]`).remove();
+                    document.querySelector(`[data-cart-item-id="${itemToDelete}"]`).remove();
                     updateCartTotals();
+                    closeDeleteModal();
+                    
+                    // Show success message
+                    showSuccessMessage('Produk berhasil dihapus dari keranjang');
                     
                     // Reload page if no items left
                     if (document.querySelectorAll('[data-cart-item-id]').length === 0) {
-                        location.reload();
+                        setTimeout(() => location.reload(), 1000);
                     }
                 } else {
                     alert(response.data.message || 'Gagal menghapus produk dari keranjang');
@@ -290,6 +381,37 @@
             }
         }
 
+        function showSuccessMessage(message) {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[60] transform translate-x-full transition-transform duration-300';
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }, 3000);
+        }
+
         function updateCartTotals() {
             const checkboxes = document.querySelectorAll('.cart-item-checkbox:checked');
             let total = 0;
@@ -302,9 +424,14 @@
                 count++;
             });
             
-            // Update display
+            // Update selected items info (blue box)
             document.getElementById('selected-count').textContent = count;
             document.getElementById('selected-total').textContent = formatCurrency(total);
+            
+            // Update summary section (right sidebar)
+            document.getElementById('summary-item-count').textContent = count;
+            document.getElementById('summary-subtotal').textContent = formatCurrency(total);
+            document.getElementById('total-price').textContent = formatCurrency(total);
             
             const selectedInfo = document.getElementById('selected-items-info');
             const checkoutBtn = document.getElementById('checkout-btn');
@@ -332,9 +459,9 @@
                 return;
             }
             
-            // Redirect to checkout with selected items
+            // Redirect directly to checkout page with selected items
             const params = selectedItems.map(id => `items[]=${id}`).join('&');
-            window.location.href = `/checkout?${params}`;
+            window.location.href = `{{ route('checkout') }}?${params}`;
         }
 
         function formatCurrency(amount) {
@@ -348,6 +475,9 @@
 
         // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Initialize totals (start with 0 since nothing is selected initially)
+            updateCartTotals();
+            
             // Select all functionality
             const selectAllCheckbox = document.getElementById('select-all');
             if (selectAllCheckbox) {
@@ -376,6 +506,23 @@
                     }
                 }
             });
+
+            // Close modal with ESC key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeDeleteModal();
+                }
+            });
+
+            // Close modal when clicking outside
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('click', function(e) {
+                    if (e.target === deleteModal) {
+                        closeDeleteModal();
+                    }
+                });
+            }
         });
     </script>
 </x-app-layout>

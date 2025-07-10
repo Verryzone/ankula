@@ -79,3 +79,8 @@ Route::get('/test-midtrans-config', function() {
 })->name('test.midtrans.config');
 
 require __DIR__.'/auth.php';
+
+// Debug routes - Only for development
+if (app()->environment('local')) {
+    require __DIR__.'/debug.php';
+}

@@ -41,25 +41,45 @@ class CheckoutController extends Controller
         $selectedItemIds = $request->get('items', []);
         
         if (empty($selectedItemIds)) {
+            Log::warning('Empty selected items in checkout', ['user_id' => $user->id]);
             return redirect()->route('cart.list')->with('error', 'Pilih produk yang ingin dibeli');
         }
+
+        Log::info('Checkout initiated', [
+            'user_id' => $user->id,
+            'selected_items' => $selectedItemIds
+        ]);
 
         // Get user's cart
         $cart = Cart::where('user_id', $user->id)->first();
         
         if (!$cart) {
+            Log::error('Cart not found for user', ['user_id' => $user->id]);
             return redirect()->route('cart.list')->with('error', 'Keranjang tidak ditemukan');
-        }
+        }            // Get selected cart items
+            $selectedItems = $cart->cartItems()
+                ->whereIn('id', $selectedItemIds)
+                ->with(['product.category'])
+                ->get();
 
-        // Get selected cart items
-        $selectedItems = $cart->cartItems()
-            ->whereIn('id', $selectedItemIds)
-            ->with(['product.category'])
-            ->get();
+            Log::info('Cart items query result', [
+                'user_id' => $user->id,
+                'cart_id' => $cart->id,
+                'requested_item_ids' => $selectedItemIds,
+                'found_items_count' => $selectedItems->count(),
+                'found_item_ids' => $selectedItems->pluck('id')->toArray(),
+                'all_cart_items' => $cart->cartItems()->pluck('id')->toArray()
+            ]);
 
-        if ($selectedItems->isEmpty()) {
-            return redirect()->route('cart.list')->with('error', 'Item yang dipilih tidak ditemukan');
-        }
+            if ($selectedItems->isEmpty()) {
+                Log::error('Selected items not found', [
+                    'user_id' => $user->id,
+                    'selected_items' => $selectedItemIds,
+                    'cart_id' => $cart->id,
+                    'all_cart_items' => $cart->cartItems()->select('id', 'product_id', 'quantity')->get()->toArray()
+                ]);
+                return redirect()->route('cart.list')->with('error', 'Item yang dipilih tidak ditemukan');
+            }
 
         // Validate stock availability
         foreach ($selectedItems as $item) {
@@ -84,8 +104,10 @@ class CheckoutController extends Controller
         $total = $subtotal - $totalDiscount + $shippingCost;
 
         // Get user addresses
-        $addresses = $user->addresses()->get();
-        $defaultAddress = $user->defaultAddress;
+        $addresses = Addresses::where('user_id', $user->id)->get();
+        $defaultAddress = Addresses::where('user_id', $user->id)
+                                  ->where('is_default', true)
+                                  ->first();
 
         return view('pages.cart.checkout', compact(
             'selectedItems',

@@ -22,26 +22,53 @@ class CartController extends Controller
             return redirect()->route('login');
         }
 
-        // Get user's cart with cart items and products
-        $cart = Cart::with(['cartItems.product.category'])
-                    ->where('user_id', $user->id)
-                    ->first();
+        // Log for debugging
+        Log::info('Cart list accessed by user', ['user_id' => $user->id, 'user_role' => $user->role]);
 
-        $cartItems = collect();
-        $totalPrice = 0;
-        $totalOriginalPrice = 0;
-        $totalItems = 0;
+        try {
+            // Get user's cart with cart items and products
+            $cart = Cart::with(['cartItems.product.category'])
+                        ->where('user_id', $user->id)
+                        ->first();
 
-        if ($cart) {
-            $cartItems = $cart->cartItems;
-            
-            // Calculate totals
-            foreach ($cartItems as $item) {
-                $itemTotal = $item->quantity * $item->product->price;
-                $totalPrice += $itemTotal;
-                $totalOriginalPrice += $itemTotal; // You can add original_price field to products table for discounts
-                $totalItems += $item->quantity;
+            $cartItems = collect();
+            $totalPrice = 0;
+            $totalOriginalPrice = 0;
+            $totalItems = 0;
+
+            if ($cart && $cart->cartItems->count() > 0) {
+                $cartItems = $cart->cartItems;
+                
+                // Calculate totals
+                foreach ($cartItems as $item) {
+                    if ($item->product) {
+                        $itemTotal = $item->quantity * $item->product->price;
+                        $totalPrice += $itemTotal;
+                        $totalOriginalPrice += $itemTotal; // You can add original_price field to products table for discounts
+                        $totalItems += $item->quantity;
+                    }
+                }
+                
+                Log::info('Cart data loaded successfully', [
+                    'user_id' => $user->id,
+                    'cart_items_count' => $cartItems->count(),
+                    'total_items' => $totalItems,
+                    'total_price' => $totalPrice
+                ]);
+            } else {
+                Log::info('Empty cart for user', ['user_id' => $user->id]);
             }
+        } catch (\Exception $e) {
+            Log::error('Error loading cart data', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            $cartItems = collect();
+            $totalPrice = 0;
+            $totalOriginalPrice = 0;
+            $totalItems = 0;
         }
 
         $totalDiscount = $totalOriginalPrice - $totalPrice;

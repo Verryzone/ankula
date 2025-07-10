@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ankulaa - Cart Debug Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .result { background: #f5f5f5; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e9; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Ankulaa Cart Debug Test</h1>
+    <p>Halaman ini untuk testing masalah cart dan checkout.</p>
+    
+    <div>
+        <button onclick="testMidtransConfig()">Test Midtrans Config</button>
+        <button onclick="testCartData()">Test Cart Data</button>
+        <button onclick="testAddItem()">Add Test Item</button>
+        <button onclick="testCheckout()">Test Checkout URL</button>
+        <button onclick="goToCart()">Go to Cart Page</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        axios.defaults.withCredentials = true;
+        
+        function addResult(content, isError = false) {
+            const div = document.createElement('div');
+            div.className = `result ${isError ? 'error' : 'success'}`;
+            div.innerHTML = content;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        async function testMidtransConfig() {
+            try {
+                const response = await axios.get('/debug/midtrans-config');
+                addResult(`<strong>Midtrans Config:</strong><pre>${JSON.stringify(response.data, null, 2)}</pre>`);
+            } catch (error) {
+                addResult(`<strong>Error:</strong> ${error.response?.data?.message || error.message}`, true);
+            }
+        }
+        
+        async function testCartData() {
+            try {
+                const response = await axios.get('/debug/cart-data');
+                addResult(`<strong>Cart Data:</strong><pre>${JSON.stringify(response.data, null, 2)}</pre>`);
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    addResult(`<strong>Not Authenticated:</strong> Please <a href="/login">login</a> first`, true);
+                } else {
+                    addResult(`<strong>Error:</strong> ${error.response?.data?.message || error.message}`, true);
+                }
+            }
+        }
+        
+        async function testAddItem() {
+            try {
+                const response = await axios.post('/debug/add-test-item', {
+                    product_id: 1,
+                    quantity: 1
+                });
+                addResult(`<strong>Add Item Result:</strong><pre>${JSON.stringify(response.data, null, 2)}</pre>`);
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    addResult(`<strong>Not Authenticated:</strong> Please <a href="/login">login</a> first`, true);
+                } else {
+                    addResult(`<strong>Error:</strong> ${error.response?.data?.message || error.message}`, true);
+                }
+            }
+        }
+        
+        async function testCheckout() {
+            try {
+                const response = await axios.get('/debug/test-checkout');
+                addResult(`<strong>Checkout Test:</strong><pre>${JSON.stringify(response.data, null, 2)}</pre>`);
+                
+                if (response.data.checkout_url) {
+                    addResult(`<strong>Test Checkout URL:</strong> <a href="${response.data.checkout_url}" target="_blank">${response.data.checkout_url}</a>`);
+                }
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    addResult(`<strong>Not Authenticated:</strong> Please <a href="/login">login</a> first`, true);
+                } else {
+                    addResult(`<strong>Error:</strong> ${error.response?.data?.message || error.message}`, true);
+                }
+            }
+        }
+        
+        function goToCart() {
+            window.location.href = '/cart';
+        }
+        
+        // Auto test on load
+        document.addEventListener('DOMContentLoaded', function() {
+            addResult('<strong>Page loaded.</strong> Click buttons above to test cart functionality.');
+        });
+    </script>
+</body>
+</html>

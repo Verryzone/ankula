@@ -459,9 +459,27 @@
                 return;
             }
             
+            // Debug log
+            console.log('Selected items for checkout:', selectedItems);
+            
+            // Validate that all selected items exist and are valid
+            const validItems = selectedItems.filter(id => id && id !== 'undefined');
+            
+            if (validItems.length === 0) {
+                alert('Terjadi kesalahan: ID item tidak valid. Silakan refresh halaman.');
+                return;
+            }
+            
+            if (validItems.length !== selectedItems.length) {
+                console.warn('Some items have invalid IDs:', selectedItems);
+            }
+            
             // Redirect directly to checkout page with selected items
-            const params = selectedItems.map(id => `items[]=${id}`).join('&');
-            window.location.href = `{{ route('checkout') }}?${params}`;
+            const params = validItems.map(id => `items[]=${id}`).join('&');
+            const checkoutUrl = `{{ route('checkout') }}?${params}`;
+            
+            console.log('Redirecting to:', checkoutUrl);
+            window.location.href = checkoutUrl;
         }
 
         function formatCurrency(amount) {

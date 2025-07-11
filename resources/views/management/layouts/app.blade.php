@@ -11,7 +11,7 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-    
+
     <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
@@ -29,11 +29,12 @@
 <body class="font-sans antialiased bg-gray-200">
     <div class="min-h-screen">
         @include('management.layouts.navigation')
+        <!-- Main container aligned with navbar -->
         <div class="max-w-screen-xl mx-auto flex min-h-screen">
             <aside class="w-64 flex-shrink-0 min-h-screen overflow-hidden">
                 @include('management.layouts.sidebar')
             </aside>
-            <div class="flex-1 mt-6 p-4 min-h-screen">
+            <div class="flex-1 mt-6 min-h-screen">
                 <!-- Page Content -->
                 <main>
                     {{ $slot }}

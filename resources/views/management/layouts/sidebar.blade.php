@@ -51,10 +51,10 @@
                     <ul id="dropdown-masterdata"
                         class="space-y-2 py-2 {{ selectedDropdown(['management.product.list', 'management.category.list']) }}">
                         <li>
-                            <a href="{{ route('management.product.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.product.list') }} dark:bg-gray-700">Products</a>
+                            <a href="{{ route('management.product.list') }}" class="text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.product.list') }} dark:bg-gray-700">Products</a>
                         </li>
                         <li>
-                            <a href="{{ route('management.category.list') }}" class="text-base text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.category.list') }} dark:bg-gray-700">Categories</a>
+                            <a href="{{ route('management.category.list') }}" class="text-gray-900 rounded-lg flex items-center p-2 group hover:bg-gray-200 transition duration-75 pl-11 dark:text-gray-200 dark:hover:bg-gray-700  {{ activeMenu('management.category.list') }} dark:bg-gray-700">Categories</a>
                         </li>
                         <li>
                             <a href=""

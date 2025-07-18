@@ -1,4 +1,5 @@
 <x-app-layout>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Success/Error Messages -->
@@ -227,7 +228,7 @@
                     <div class="border-t pt-3">
                         <div class="flex justify-between text-lg font-bold">
                             <span>Total</span>
-                            <span>Rp {{ number_format($order->total_amount, 0, ',', '.') }}</span>
+                            <span>Rp {{ number_format($order->total_amount + $order->shipping_cost, 0, ',', '.') }}</span>
                         </div>
                     </div>
                 </div>
@@ -271,6 +272,19 @@
                            class="block w-full px-4 py-2 bg-green-600 text-white text-center rounded-md hover:bg-green-700 transition duration-300">
                             Bayar Sekarang
                         </a>
+                        
+                        <button onclick="checkPaymentStatus({{ $order->id }})" 
+                                id="check-status-btn"
+                                class="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">
+                            <span id="check-status-text">Refresh Status Pembayaran</span>
+                            <span id="check-status-loading" class="hidden">
+                                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Checking...
+                            </span>
+                        </button>
                     @endif
                     
                     @if($order->status === 'pending')
@@ -312,6 +326,128 @@
             </div>
         </div>
     </div>
+
+    <!-- Success/Error Modal for Status Check -->
+    <div id="status-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <div id="status-modal-icon" class="mx-auto flex items-center justify-center h-12 w-12 rounded-full mb-4">
+                    <!-- Icon will be inserted here -->
+                </div>
+                <h3 id="status-modal-title" class="text-lg font-medium text-gray-900 mb-2"></h3>
+                <div id="status-modal-message" class="mt-2 px-7 py-3">
+                    <!-- Message will be inserted here -->
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="status-modal-close" 
+                            class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        async function checkPaymentStatus(orderId) {
+            const btn = document.getElementById('check-status-btn');
+            const textSpan = document.getElementById('check-status-text');
+            const loadingSpan = document.getElementById('check-status-loading');
+            
+            // Show loading state
+            btn.disabled = true;
+            textSpan.classList.add('hidden');
+            loadingSpan.classList.remove('hidden');
+            
+            try {
+                const response = await fetch(`/payment/check-status/${orderId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    let message = '';
+                    if (data.status_changed) {
+                        message = `Status berhasil diperbarui!\n`;
+                        message += `Payment: "${data.old_status}" → "${data.new_status}"\n`;
+                        if (data.old_order_status !== data.new_order_status) {
+                            message += `Order: "${data.old_order_status}" → "${data.new_order_status}"\n`;
+                        }
+                        message += `Halaman akan dimuat ulang dalam 2 detik.`;
+                    } else {
+                        message = `Status saat ini:\nPayment: ${data.new_status}\nOrder: ${data.new_order_status}\nTidak ada perubahan.`;
+                    }
+                    
+                    showStatusModal(
+                        'success',
+                        'Status Berhasil Diperiksa!',
+                        message
+                    );
+                    
+                    if (data.status_changed) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    }
+                } else {
+                    showStatusModal(
+                        'error',
+                        'Gagal Memeriksa Status',
+                        data.error || 'Terjadi kesalahan saat memeriksa status pembayaran.'
+                    );
+                }
+            } catch (error) {
+                showStatusModal(
+                    'error',
+                    'Kesalahan Jaringan',
+                    'Tidak dapat terhubung ke server. Silakan coba lagi.'
+                );
+            } finally {
+                // Reset button state
+                btn.disabled = false;
+                textSpan.classList.remove('hidden');
+                loadingSpan.classList.add('hidden');
+            }
+        }
+        
+        function showStatusModal(type, title, message) {
+            const modal = document.getElementById('status-modal');
+            const icon = document.getElementById('status-modal-icon');
+            const titleEl = document.getElementById('status-modal-title');
+            const messageEl = document.getElementById('status-modal-message');
+            
+            // Set icon and colors based on type
+            if (type === 'success') {
+                icon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4';
+                icon.innerHTML = '<svg class="h-6 w-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+            } else {
+                icon.className = 'mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4';
+                icon.innerHTML = '<svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            }
+            
+            titleEl.textContent = title;
+            messageEl.innerHTML = message.replace(/\n/g, '<br>');
+            modal.classList.remove('hidden');
+        }
+        
+        // Close modal
+        document.getElementById('status-modal-close').addEventListener('click', function() {
+            document.getElementById('status-modal').classList.add('hidden');
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('status-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+    </script>
 
     <style>
         @media print {

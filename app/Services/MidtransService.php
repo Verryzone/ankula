@@ -32,6 +32,47 @@ class MidtransService
                 throw new Exception('Midtrans server key tidak dikonfigurasi. Silakan periksa file .env');
             }
 
+            // Check if there's already a successful payment for this order
+            $existingPayment = Payment::where('order_id', $order->id)
+                                    ->where('status', 'success')
+                                    ->first();
+            
+            if ($existingPayment) {
+                Log::info('Payment already successful for order', [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'payment_id' => $existingPayment->id
+                ]);
+                
+                return [
+                    'success' => true,
+                    'snap_token' => $existingPayment->snap_token,
+                    'payment' => $existingPayment,
+                    'message' => 'Payment already completed'
+                ];
+            }
+
+            // Check if there's a pending payment with valid snap token
+            $pendingPayment = Payment::where('order_id', $order->id)
+                                   ->where('status', 'pending')
+                                   ->where('snap_token_expires_at', '>', now())
+                                   ->first();
+            
+            if ($pendingPayment) {
+                Log::info('Using existing pending payment with valid token', [
+                    'order_id' => $order->id,
+                    'order_number' => $order->order_number,
+                    'payment_id' => $pendingPayment->id
+                ]);
+                
+                return [
+                    'success' => true,
+                    'snap_token' => $pendingPayment->snap_token,
+                    'payment' => $pendingPayment,
+                    'message' => 'Using existing payment token'
+                ];
+            }
+
             // Log config for debugging
             Log::info('Midtrans Config', [
                 'serverKey' => substr(config('midtrans.serverKey'), 0, 10) . '...',
@@ -44,9 +85,12 @@ class MidtransService
             Config::$isSanitized = config('midtrans.isSanitized');
             Config::$is3ds = config('midtrans.is3ds');
 
+            // Generate unique transaction ID for Midtrans (different from order_number)
+            $transactionId = $order->order_number . '-' . time() . '-' . substr(md5(uniqid()), 0, 6);
+
             // Prepare transaction data
             $transactionDetails = [
-                'order_id' => $order->order_number,
+                'order_id' => $transactionId, // Use unique transaction ID
                 'gross_amount' => (int) ($order->total_amount + $order->shipping_cost),
             ];
 
@@ -99,6 +143,7 @@ class MidtransService
             // Log transaction data for debugging
             Log::info('Creating Midtrans transaction', [
                 'order_id' => $order->order_number,
+                'transaction_id' => $transactionId,
                 'gross_amount' => $transactionDetails['gross_amount'],
                 'item_details' => $itemDetails,
                 'customer_details' => $customerDetails
@@ -107,19 +152,25 @@ class MidtransService
             // Create snap token
             $snapToken = Snap::getSnapToken($transactionData);
 
+            // Delete any existing pending payments for this order to avoid conflicts
+            Payment::where('order_id', $order->id)
+                   ->where('status', 'pending')
+                   ->delete();
+
             // Create payment record
             $payment = Payment::create([
                 'order_id' => $order->id,
                 'payment_method' => 'midtrans',
                 'amount' => $order->total_amount + $order->shipping_cost,
                 'status' => 'pending',
-                'transaction_id' => $order->order_number,
+                'transaction_id' => $transactionId, // Use unique transaction ID
                 'snap_token' => $snapToken,
                 'snap_token_expires_at' => now()->addHours(24) // Snap token expired in 24 hours
             ]);
 
             Log::info('Midtrans Snap token created successfully', [
                 'order_id' => $order->order_number,
+                'transaction_id' => $transactionId,
                 'payment_id' => $payment->id,
                 'snap_token' => substr($snapToken, 0, 20) . '...'
             ]);
@@ -133,6 +184,7 @@ class MidtransService
         } catch (Exception $e) {
             Log::error('Midtrans transaction creation failed', [
                 'order_id' => $order->order_number ?? 'unknown',
+                'transaction_id' => $transactionId ?? 'unknown',
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
@@ -150,28 +202,30 @@ class MidtransService
     public function handleNotification($notification)
     {
         try {
-            $orderId = $notification['order_id'];
+            $transactionId = $notification['order_id']; // This is actually our transaction_id
             $transactionStatus = $notification['transaction_status'];
             $fraudStatus = $notification['fraud_status'] ?? 'accept';
 
-            // Find payment by transaction_id OR by order_number
-            $payment = Payment::where('transaction_id', $orderId)->first();
+            // Find payment by transaction_id
+            $payment = Payment::where('transaction_id', $transactionId)->first();
             
             if (!$payment) {
-                // Try to find by order number (for migrated orders)
-                $order = Order::where('order_number', $orderId)->first();
+                // Try to find by order number (for backward compatibility)
+                $orderNumber = explode('-', $transactionId)[0]; // Extract order number from transaction ID
+                $order = Order::where('order_number', $orderNumber)->first();
                 if ($order) {
-                    $payment = Payment::getByOrder($order->id);
+                    $payment = Payment::where('order_id', $order->id)->first();
                 }
             }
 
             if (!$payment) {
-                Log::warning('Payment not found for order: ' . $orderId);
+                Log::warning('Payment not found for transaction: ' . $transactionId);
                 return ['success' => false, 'message' => 'Payment not found'];
             }
 
             Log::info('Midtrans notification received', [
-                'order_id' => $orderId,
+                'transaction_id' => $transactionId,
+                'order_number' => $payment->order->order_number ?? 'unknown',
                 'transaction_status' => $transactionStatus,
                 'fraud_status' => $fraudStatus,
                 'payment_id' => $payment->id
@@ -181,10 +235,10 @@ class MidtransService
                 if ($fraudStatus == 'challenge') {
                     $payment->update(['status' => 'pending']);
                 } else if ($fraudStatus == 'accept') {
-                    $payment->markAsSuccess($orderId, $notification);
+                    $payment->markAsSuccess($transactionId, $notification);
                 }
             } else if ($transactionStatus == 'settlement') {
-                $payment->markAsSuccess($orderId, $notification);
+                $payment->markAsSuccess($transactionId, $notification);
             } else if ($transactionStatus == 'pending') {
                 $payment->update(['status' => 'pending']);
             } else if (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {

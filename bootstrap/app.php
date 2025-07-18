@@ -17,6 +17,23 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'role' => RoleMiddleware::class,
         ]);
+        
+        // Exclude webhook endpoint from CSRF protection
+        $middleware->validateCsrfTokens(except: [
+            'payment/notification'
+        ]);
+    })
+    ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
+        // Auto-check payment status every 5 minutes
+        $schedule->command('payments:check-all --fix')
+                 ->everyFiveMinutes()
+                 ->withoutOverlapping()
+                 ->runInBackground();
+                 
+        // Clean up expired payments daily
+        $schedule->command('payments:cleanup-expired')
+                 ->daily()
+                 ->at('03:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

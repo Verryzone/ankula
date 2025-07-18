@@ -19,7 +19,7 @@ function formatCurrency($amount)
 
 function activeMenu($routeName)
 {
-      return Route::is($routeName) ? 'bg-gray-200' : 'bg-gray-50';
+      return Route::is($routeName) ? 'bg-gray-200 font-bold' : 'bg-gray-50';
 }
 
 function selectedDropdown($submenu = [])
@@ -65,6 +65,54 @@ function getPaymentStatusBadgeClass($status)
 function formatOrderStatus($status)
 {
     return ucfirst(str_replace('_', ' ', $status));
+}
+
+function cleanupExpiredPayments()
+{
+    $expiredPayments = \App\Models\Payment::where('status', 'pending')
+        ->where('snap_token_expires_at', '<', now())
+        ->get();
+    
+    foreach ($expiredPayments as $payment) {
+        $payment->update(['status' => 'failed']);
+        \Illuminate\Support\Facades\Log::info('Expired payment marked as failed', [
+            'payment_id' => $payment->id,
+            'order_id' => $payment->order_id
+        ]);
+    }
+    
+    return $expiredPayments->count();
+}
+
+function generateUniqueTransactionId($orderNumber)
+{
+    return $orderNumber . '-' . time() . '-' . substr(md5(uniqid()), 0, 6);
+}
+
+function findOrderByTransactionId($transactionId)
+{
+    // First, try to find by payment transaction_id
+    $payment = \App\Models\Payment::where('transaction_id', $transactionId)->first();
+    
+    if ($payment) {
+        return $payment->order;
+    }
+    
+    // Fallback: Try to extract order_number from transaction_id
+    // Format: INV202507181234-AB1C-1721234567-xyz123
+    $parts = explode('-', $transactionId);
+    if (count($parts) >= 2 && strpos($parts[0], 'INV') === 0) {
+        // Reconstruct original order number (first two parts)
+        $possibleOrderNumber = $parts[0] . '-' . $parts[1];
+        $order = \App\Models\Order::where('order_number', $possibleOrderNumber)->first();
+        
+        if ($order) {
+            return $order;
+        }
+    }
+    
+    // Last resort: try direct match (for backward compatibility)
+    return \App\Models\Order::where('order_number', $transactionId)->first();
 }
 
 ?>

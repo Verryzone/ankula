@@ -33,6 +33,7 @@ Route::middleware(['auth', 'role:customer'])->group(function () {
     Route::get('/payment/success', [CheckoutController::class, 'paymentSuccess'])->name('payment.success');
     Route::get('/payment/failed', [CheckoutController::class, 'paymentFailed'])->name('payment.failed');
     Route::get('/payment/retry/{id}', [CheckoutController::class, 'retryPayment'])->name('payment.retry');
+    Route::post('/payment/check-status/{order}', [CheckoutController::class, 'manualCheckStatus'])->name('payment.check-status');
 
     // Order routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

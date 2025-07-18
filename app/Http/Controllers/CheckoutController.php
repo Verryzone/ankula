@@ -252,10 +252,19 @@ class CheckoutController extends Controller
             // Create payment with Midtrans
             $order->load(['orderItems.product', 'user', 'shippingAddress']);
             
-            // Check if payment already exists for this order
-            $existingPayment = Payment::getByOrder($order->id);
+            // Clean up any expired payments for this order
+            Payment::where('order_id', $order->id)
+                   ->where('status', 'pending')
+                   ->where('snap_token_expires_at', '<', now())
+                   ->update(['status' => 'failed']);
             
-            if ($existingPayment && $existingPayment->isSnapTokenValid()) {
+            // Check if payment already exists for this order
+            $existingPayment = Payment::where('order_id', $order->id)
+                                    ->where('status', 'pending')
+                                    ->where('snap_token_expires_at', '>', now())
+                                    ->first();
+            
+            if ($existingPayment) {
                 // Use existing payment if snap token is still valid
                 Log::info('Using existing payment with valid snap token', [
                     'order_id' => $order->id,
@@ -272,11 +281,15 @@ class CheckoutController extends Controller
                 ]);
             }
             
-            // Create new payment if no existing valid payment
+            // Create new payment
             $paymentResult = $this->midtransService->createTransaction($order);
 
             if (!$paymentResult['success']) {
                 DB::rollBack();
+                Log::error('Payment creation failed', [
+                    'order_id' => $order->id,
+                    'error' => $paymentResult['message']
+                ]);
                 return redirect()->back()->with('error', $paymentResult['message']);
             }
 
@@ -311,14 +324,42 @@ class CheckoutController extends Controller
     {
         $notification = $request->all();
         
-        Log::info('Midtrans notification received', $notification);
+        // Enhanced logging for webhook debugging
+        Log::info('=== MIDTRANS WEBHOOK RECEIVED ===', [
+            'timestamp' => now()->toISOString(),
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'notification_data' => $notification,
+            'headers' => $request->headers->all()
+        ]);
+        
+        try {
+            $result = $this->midtransService->handleNotification($notification);
 
-        $result = $this->midtransService->handleNotification($notification);
-
-        if ($result['success']) {
-            return response()->json(['status' => 'success']);
-        } else {
-            return response()->json(['status' => 'error', 'message' => $result['message']], 400);
+            if ($result['success']) {
+                Log::info('Webhook processed successfully', [
+                    'transaction_id' => $notification['order_id'] ?? null,
+                    'status' => $notification['transaction_status'] ?? null,
+                    'result' => $result
+                ]);
+                return response()->json(['status' => 'success'], 200);
+            } else {
+                Log::warning('Webhook processing failed', [
+                    'transaction_id' => $notification['order_id'] ?? null,
+                    'status' => $notification['transaction_status'] ?? null,
+                    'error' => $result['message'] ?? 'Unknown error',
+                    'result' => $result
+                ]);
+                return response()->json(['status' => 'error', 'message' => $result['message']], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Webhook exception occurred', [
+                'transaction_id' => $notification['order_id'] ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'notification' => $notification
+            ]);
+            return response()->json(['status' => 'error', 'message' => 'Internal server error'], 500);
         }
     }
 
@@ -327,14 +368,44 @@ class CheckoutController extends Controller
      */
     public function paymentSuccess(Request $request)
     {
-        $orderId = $request->get('order_id');
+        $orderId = $request->get('order_id'); // This is actually transaction_id from Midtrans
         $transactionStatus = $request->get('transaction_status');
 
-        $order = Order::where('order_number', $orderId)->first();
+        Log::info('Payment success page accessed', [
+            'order_id' => $orderId,
+            'transaction_status' => $transactionStatus
+        ]);
+
+        // Find order by transaction_id first
+        $payment = Payment::where('transaction_id', $orderId)->first();
+        
+        if ($payment) {
+            $order = $payment->order;
+        } else {
+            // Extract order number from transaction ID (format: INV202507181234-AB1C-timestamp-random)
+            $parts = explode('-', $orderId);
+            if (count($parts) >= 2 && strpos($parts[0], 'INV') === 0) {
+                $possibleOrderNumber = $parts[0] . '-' . $parts[1];
+                $order = Order::where('order_number', $possibleOrderNumber)->first();
+            } else {
+                // Fallback for old format
+                $order = Order::where('order_number', $orderId)->first();
+            }
+        }
 
         if (!$order) {
+            Log::warning('Order not found in payment success', [
+                'order_id' => $orderId,
+                'transaction_status' => $transactionStatus
+            ]);
             return redirect()->route('dashboard')->with('error', 'Pesanan tidak ditemukan');
         }
+
+        Log::info('Payment success order found', [
+            'order_id' => $order->id,
+            'order_number' => $order->order_number,
+            'transaction_id' => $orderId
+        ]);
 
         return view('pages.payment.success', compact('order', 'transactionStatus'));
     }
@@ -344,9 +415,35 @@ class CheckoutController extends Controller
      */
     public function paymentFailed(Request $request)
     {
-        $orderId = $request->get('order_id');
+        $orderId = $request->get('order_id'); // This is actually transaction_id from Midtrans
         
-        $order = Order::where('order_number', $orderId)->first();
+        Log::info('Payment failed page accessed', [
+            'order_id' => $orderId
+        ]);
+
+        // Find order by transaction_id first
+        $payment = Payment::where('transaction_id', $orderId)->first();
+        
+        if ($payment) {
+            $order = $payment->order;
+        } else {
+            // Extract order number from transaction ID
+            $parts = explode('-', $orderId);
+            if (count($parts) >= 2 && strpos($parts[0], 'INV') === 0) {
+                $possibleOrderNumber = $parts[0] . '-' . $parts[1];
+                $order = Order::where('order_number', $possibleOrderNumber)->first();
+            } else {
+                // Fallback for old format
+                $order = Order::where('order_number', $orderId)->first();
+            }
+        }
+
+        if (!$order) {
+            Log::warning('Order not found in payment failed', [
+                'order_id' => $orderId
+            ]);
+            return redirect()->route('dashboard')->with('error', 'Pesanan tidak ditemukan');
+        }
 
         return view('pages.payment.failed', compact('order'));
     }
@@ -402,31 +499,142 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Manual check payment status for debugging
+     */
+    public function manualCheckStatus(Request $request, $orderId)
+    {
+        try {
+            $user = Auth::user();
+            
+            $order = Order::where('id', $orderId)
+                         ->where('user_id', $user->id)
+                         ->first();
+
+            if (!$order) {
+                return response()->json(['error' => 'Order not found'], 404);
+            }
+
+            $payment = Payment::where('order_id', $order->id)->first();
+            
+            if (!$payment) {
+                return response()->json(['error' => 'Payment not found'], 404);
+            }
+
+            Log::info('Manual payment status check', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'payment_id' => $payment->id,
+                'transaction_id' => $payment->transaction_id,
+                'current_status' => $payment->status
+            ]);
+
+            // Check with Midtrans
+            $result = $this->midtransService->checkTransactionStatus($payment->transaction_id);
+            
+            if ($result['success']) {
+                $status = $result['data'];
+                $transactionStatus = is_object($status) ? $status->transaction_status : $status['transaction_status'];
+                
+                Log::info('Midtrans status received', [
+                    'transaction_id' => $payment->transaction_id,
+                    'midtrans_status' => $transactionStatus,
+                    'full_response' => $status
+                ]);
+
+                // Update payment based on actual status
+                $oldStatus = $payment->status;
+                $oldOrderStatus = $payment->order->status;
+                
+                if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                    $payment->markAsSuccess($payment->transaction_id, $status);
+                    $newStatus = 'success';
+                } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
+                    $payment->markAsFailed($status);
+                    $newStatus = 'failed';
+                } else {
+                    $newStatus = 'pending';
+                }
+                
+                // Refresh both payment and order
+                $payment = $payment->fresh();
+                $order = $order->fresh();
+                
+                Log::info('Payment status updated', [
+                    'transaction_id' => $payment->transaction_id,
+                    'old_payment_status' => $oldStatus,
+                    'new_payment_status' => $payment->status,
+                    'old_order_status' => $oldOrderStatus,
+                    'new_order_status' => $order->status,
+                    'midtrans_status' => $transactionStatus
+                ]);
+                
+                return response()->json([
+                    'success' => true,
+                    'order' => $order->fresh(['payment']),
+                    'midtrans_status' => $transactionStatus,
+                    'status_changed' => $oldStatus !== $newStatus || $oldOrderStatus !== $order->status,
+                    'old_status' => $oldStatus,
+                    'new_status' => $newStatus,
+                    'old_order_status' => $oldOrderStatus,
+                    'new_order_status' => $order->status,
+                    'full_response' => $status
+                ]);
+            } else {
+                Log::error('Failed to check payment status', [
+                    'transaction_id' => $payment->transaction_id,
+                    'error' => $result['message']
+                ]);
+                
+                return response()->json(['error' => $result['message']], 400);
+            }
+        } catch (\Exception $e) {
+            Log::error('Manual payment check failed', [
+                'order_id' => $orderId,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
      * Manual check payment status (for debugging)
      */
     public function checkPaymentStatus(Request $request, $orderId)
     {
         try {
-            // Get order by order_number
-            $order = Order::where('order_number', $orderId)->first();
+            // Find order by transaction_id first, then by order_number
+            $payment = Payment::where('transaction_id', $orderId)->first();
+            $order = null;
+
+            if ($payment) {
+                $order = $payment->order;
+            } else {
+                // Try to find by order_number (for backward compatibility)
+                $order = Order::where('order_number', $orderId)->first();
+                if ($order) {
+                    $payment = Payment::where('order_id', $order->id)->first();
+                }
+            }
             
             if (!$order) {
                 return response()->json(['error' => 'Order not found'], 404);
             }
 
-            // Check with Midtrans
-            $result = $this->midtransService->checkTransactionStatus($orderId);
+            // Check with Midtrans using the transaction_id
+            $transactionId = $payment ? $payment->transaction_id : $orderId;
+            $result = $this->midtransService->checkTransactionStatus($transactionId);
             
             if ($result['success']) {
                 $status = $result['data'];
                 
                 // Update payment based on actual status
-                $payment = Payment::getByOrder($order->id);
                 if ($payment) {
                     $transactionStatus = is_object($status) ? $status->transaction_status : $status['transaction_status'];
                     
                     if (in_array($transactionStatus, ['capture', 'settlement'])) {
-                        $payment->markAsSuccess($orderId, $status);
+                        $payment->markAsSuccess($transactionId, $status);
                     } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
                         $payment->markAsFailed($status);
                     } else {

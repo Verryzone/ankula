@@ -130,11 +130,6 @@
             </div>
         </div>
         <div class="flex items-center h-16">
-            <button onclick="window.location.href='{{ route('login') }}'"
-                class="flex items-center bg-primary text-white px-6 py-2 rounded-lg bg-blue-700 transition-colors duration-300">
-                Sign in
-            </button>
-
             <button id="dropdownDefaultButton" data-dropdown-toggle="dropdown" type="button" class="ml-3">
                 <img class="w-8 h-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-5.jpg" alt="user photo">
             </button>

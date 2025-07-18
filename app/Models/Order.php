@@ -31,20 +31,17 @@ class Order extends Model
      */
     public static function generateOrderNumber()
     {
-        $prefix = 'INV' . date('Ym'); // Format: INV202507
-        $lastOrder = self::whereDate('created_at', today())
-                         ->where('order_number', 'like', $prefix . '%')
-                         ->orderBy('id', 'desc')
-                         ->first();
+        do {
+            // Format: INV202507180001-AB1C (with timestamp and random suffix for uniqueness)
+            $prefix = 'INV' . date('YmdHi'); // Include hour and minute for better uniqueness
+            $randomSuffix = strtoupper(substr(md5(uniqid(rand(), true)), 0, 4));
+            $orderNumber = $prefix . '-' . $randomSuffix;
+            
+            // Check if this order number already exists
+            $exists = self::where('order_number', $orderNumber)->exists();
+        } while ($exists);
         
-        if ($lastOrder) {
-            $lastNumber = (int) substr($lastOrder->order_number, -4);
-            $newNumber = str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
-        } else {
-            $newNumber = '0001';
-        }
-        
-        return $prefix . $newNumber; // Format: INV2025070001
+        return $orderNumber;
     }
 
     /**

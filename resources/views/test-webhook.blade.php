@@ -3,6 +3,11 @@
 <head>
     <title>Test Midtrans Webhook</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    <!-- Favicon -->
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
+    
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         .form-group { margin: 10px 0; }

@@ -2,26 +2,69 @@
     <div class="max-w-screen-xl mx-auto p-4">
         <div class="space-y-12 py-8">
 
+            @if($highlights->count() > 0)
+                @foreach($highlights as $highlight)
                     <section class="bg-blue-800 text-white rounded-lg overflow-hidden">
                         <div class="flex flex-col md:flex-row items-center">
                             <div class="p-8 md:p-16 w-full md:w-1/2 space-y-4">
-                                <h1 class="text-4xl md:text-5xl font-bold leading-tight">Bring Happiness From Shopping
-                                    Everyday</h1>
-                                <p class="text-lg text-blue-200">Find the perfect product for your needs.</p>
-                                <p class="text-3xl font-bold">$449.99</p>
-                                <button
-                                    class="bg-white text-blue-800 font-semibold py-3 px-8 rounded-lg mt-4 hover:bg-gray-200 transition-colors">
-                                    Shop Now
-                                </button>
+                                <h1 class="text-4xl md:text-5xl font-bold leading-tight">{{ $highlight->title }}</h1>
+                                @if($highlight->description)
+                                    <p class="text-lg text-blue-200">{{ $highlight->description }}</p>
+                                @endif
+                                @if($highlight->price)
+                                    <p class="text-3xl font-bold">Rp {{ number_format($highlight->price, 0, ',', '.') }}</p>
+                                @endif
+                                @if($highlight->button_link)
+                                    <a href="{{ $highlight->button_link }}"
+                                       class="inline-block bg-white text-blue-800 font-semibold py-3 px-8 rounded-lg mt-4 hover:bg-gray-200 transition-colors">
+                                        {{ $highlight->button_text }}
+                                    </a>
+                                @else
+                                    <button
+                                        class="bg-white text-blue-800 font-semibold py-3 px-8 rounded-lg mt-4 hover:bg-gray-200 transition-colors">
+                                        {{ $highlight->button_text }}
+                                    </button>
+                                @endif
                             </div>
                             <div class="relative w-full md:w-1/2 min-h-[30rem] flex items-center justify-center">
-                                <img src="{{ asset('img/kemeja.jpg') }}" alt="Kemeja Hitam"
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform rotate-6 z-10 transition-transform duration-300 hover:rotate-0 ">
-                                <img src="{{ asset('img/kemeja.jpg') }}" alt="Kemeja Putih"
-                                    class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform -rotate-6 transition-transform duration-300 hover:rotate-0 ">
+                                @if($highlight->image_path)
+                                    <img src="{{ asset('storage/' . $highlight->image_path) }}" alt="{{ $highlight->title }}"
+                                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform rotate-6 z-10 transition-transform duration-300 hover:rotate-0 ">
+                                    <img src="{{ asset('storage/' . $highlight->image_path) }}" alt="{{ $highlight->title }}"
+                                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform -rotate-6 transition-transform duration-300 hover:rotate-0 ">
+                                @else
+                                    <img src="{{ asset('img/kemeja.jpg') }}" alt="Default Product"
+                                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform rotate-6 z-10 transition-transform duration-300 hover:rotate-0 ">
+                                    <img src="{{ asset('img/kemeja.jpg') }}" alt="Default Product"
+                                        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform -rotate-6 transition-transform duration-300 hover:rotate-0 ">
+                                @endif
                             </div>
                         </div>
                     </section>
+                @endforeach
+            @else
+                <!-- Default highlight if no highlights are configured -->
+                <section class="bg-blue-800 text-white rounded-lg overflow-hidden">
+                    <div class="flex flex-col md:flex-row items-center">
+                        <div class="p-8 md:p-16 w-full md:w-1/2 space-y-4">
+                            <h1 class="text-4xl md:text-5xl font-bold leading-tight">Bring Happiness From Shopping
+                                Everyday</h1>
+                            <p class="text-lg text-blue-200">Find the perfect product for your needs.</p>
+                            <p class="text-3xl font-bold">$449.99</p>
+                            <button
+                                class="bg-white text-blue-800 font-semibold py-3 px-8 rounded-lg mt-4 hover:bg-gray-200 transition-colors">
+                                Shop Now
+                            </button>
+                        </div>
+                        <div class="relative w-full md:w-1/2 min-h-[30rem] flex items-center justify-center">
+                            <img src="{{ asset('img/kemeja.jpg') }}" alt="Kemeja Hitam"
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform rotate-6 z-10 transition-transform duration-300 hover:rotate-0 ">
+                            <img src="{{ asset('img/kemeja.jpg') }}" alt="Kemeja Putih"
+                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 md:w-80 object-contain rounded-lg shadow-lg transform -rotate-6 transition-transform duration-300 hover:rotate-0 ">
+                        </div>
+                    </div>
+                </section>
+            @endif
 
                     {{--   --}}
 

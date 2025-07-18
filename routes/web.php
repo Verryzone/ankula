@@ -18,9 +18,7 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 
 Route::get('/', [dashboardController::class, 'fetch'])->name('dashboard');
 
-Route::get('/dashboard', function () {
-    return view('pages.dashboard.app');
-})->middleware(['auth', 'verified']);
+Route::get('/dashboard', [dashboardController::class, 'fetch'])->middleware(['auth', 'verified'])->name('user.dashboard');
 
 Route::middleware(['auth', 'role:customer'])->group(function () {
     // Halaman daftar keranjang
@@ -61,6 +59,16 @@ Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function 
     Route::get('/category', [CategoryController::class, 'list'])->name('management.category.list');
     Route::post('/category', [CategoryController::class, 'add'])->name('management.category.add');
     Route::delete('/category', [CategoryController::class, 'destroy'])->name('management.category.destroy');
+
+    // Highlight routes
+    Route::get('/highlight', [\App\Http\Controllers\ManagementHighlightController::class, 'index'])->name('management.highlight.index');
+    Route::get('/highlight/create', [\App\Http\Controllers\ManagementHighlightController::class, 'create'])->name('management.highlight.create');
+    Route::post('/highlight', [\App\Http\Controllers\ManagementHighlightController::class, 'store'])->name('management.highlight.store');
+    Route::get('/highlight/{highlight}/edit', [\App\Http\Controllers\ManagementHighlightController::class, 'edit'])->name('management.highlight.edit');
+    Route::put('/highlight/{highlight}', [\App\Http\Controllers\ManagementHighlightController::class, 'update'])->name('management.highlight.update');
+    Route::delete('/highlight/{highlight}', [\App\Http\Controllers\ManagementHighlightController::class, 'destroy'])->name('management.highlight.destroy');
+    Route::post('/highlight/{highlight}/toggle-active', [\App\Http\Controllers\ManagementHighlightController::class, 'toggleActive'])->name('management.highlight.toggle-active');
+    Route::post('/highlight/update-order', [\App\Http\Controllers\ManagementHighlightController::class, 'updateOrder'])->name('management.highlight.update-order');
 
     // Order management routes
     Route::get('/orders', [ManagementOrderController::class, 'index'])->name('management.orders.index');

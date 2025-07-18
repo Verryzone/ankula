@@ -113,64 +113,66 @@
             </div>
 
     <!-- Product Detail Modal -->
-    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+    <div id="productModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-2 sm:p-4">
+        <div class="bg-white rounded-lg w-full max-w-4xl max-h-[95vh] sm:max-h-[90vh] overflow-hidden flex flex-col">
             <!-- Modal Header -->
-            <div class="flex justify-between items-center p-6 border-b">
-                <h2 class="text-2xl font-bold text-gray-800">Detail Produk</h2>
-                <button onclick="productDetailModal.closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold">
+            <div class="flex justify-between items-center p-4 sm:p-6 border-b bg-white sticky top-0 z-10">
+                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Detail Produk</h2>
+                <button onclick="productDetailModal.closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl font-bold p-1">
                     &times;
                 </button>
             </div>
             
             <!-- Modal Content -->
-            <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <!-- Product Image -->
-                    <div class="space-y-4">
-                        <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                            <img id="modalProductImage" src="" alt="Product Image" 
-                                 class="w-full h-full object-cover">
-                        </div>
-                    </div>
-                    
-                    <!-- Product Info -->
-                    <div class="space-y-6">
-                        <div>
-                            <p id="modalProductCategory" class="text-sm text-gray-500 mb-2"></p>
-                            <h1 id="modalProductName" class="text-3xl font-bold text-gray-800 mb-2"></h1>
-                            <div class="text-yellow-400 mb-4">★★★★☆ <span class="text-gray-400">(18 reviews)</span></div>
-                        </div>
-                        
-                        <div>
-                            <p id="modalProductPrice" class="text-3xl font-bold text-blue-600 mb-4"></p>
-                            <div class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full inline-block mb-4">
-                                <span id="modalProductStock"></span> tersedia
+            <div class="flex-1 overflow-y-auto">
+                <div class="p-4 sm:p-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-8">
+                        <!-- Product Image -->
+                        <div class="space-y-4 order-1 lg:order-1">
+                            <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                                <img id="modalProductImage" src="" alt="Product Image" 
+                                     class="w-full h-full object-cover">
                             </div>
                         </div>
                         
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Deskripsi</h3>
-                            <p id="modalProductDescription" class="text-gray-600 leading-relaxed"></p>
-                        </div>
-                        
-                        <!-- Quantity Selector (only for customers) -->
-                        <div id="quantitySection">
-                            <h3 class="text-lg font-semibold mb-2">Jumlah</h3>
-                            <div class="flex items-center space-x-3">
-                                <button class="btn-quantity-decrease bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                                    -
-                                </button>
-                                <input id="quantity" type="number" value="1" min="1" class="w-16 text-center border border-gray-300 rounded py-2">
-                                <button class="btn-quantity-increase bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">
-                                    +
-                                </button>
+                        <!-- Product Info -->
+                        <div class="space-y-4 sm:space-y-6 order-2 lg:order-2">
+                            <div>
+                                <p id="modalProductCategory" class="text-sm text-gray-500 mb-2"></p>
+                                <h1 id="modalProductName" class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-800 mb-2"></h1>
+                                <div class="text-yellow-400 mb-4 text-sm">★★★★☆ <span class="text-gray-400">(18 reviews)</span></div>
                             </div>
-                        </div>
-                        
-                        <!-- Action Buttons (dynamic based on user role) -->
-                        <div id="actionButtons">
-                            <!-- Buttons will be populated by JavaScript based on user role -->
+                            
+                            <div>
+                                <p id="modalProductPrice" class="text-2xl sm:text-3xl font-bold text-blue-600 mb-4"></p>
+                                <div class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full inline-block mb-4">
+                                    <span id="modalProductStock"></span> tersedia
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3 class="text-base sm:text-lg font-semibold mb-2">Deskripsi</h3>
+                                <p id="modalProductDescription" class="text-gray-600 leading-relaxed text-sm sm:text-base"></p>
+                            </div>
+                            
+                            <!-- Quantity Selector (only for customers) -->
+                            <div id="quantitySection">
+                                <h3 class="text-base sm:text-lg font-semibold mb-2">Jumlah</h3>
+                                <div class="flex items-center space-x-3">
+                                    <button class="btn-quantity-decrease bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 sm:px-4 rounded text-sm sm:text-base">
+                                        -
+                                    </button>
+                                    <input id="quantity" type="number" value="1" min="1" class="w-12 sm:w-16 text-center border border-gray-300 rounded py-2 text-sm sm:text-base">
+                                    <button class="btn-quantity-increase bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-3 sm:px-4 rounded text-sm sm:text-base">
+                                        +
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Action Buttons (dynamic based on user role) -->
+                            <div id="actionButtons" class="space-y-3">
+                                <!-- Buttons will be populated by JavaScript based on user role -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -181,6 +183,63 @@
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    
+    <!-- Custom CSS for Mobile Modal -->
+    <style>
+        /* Mobile Modal Enhancements */
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            position: fixed !important;
+            width: 100% !important;
+        }
+        
+        @media (max-width: 640px) {
+            #productModal {
+                padding: 0;
+            }
+            
+            #productModal .bg-white {
+                border-radius: 0;
+                border-top-left-radius: 1rem;
+                border-top-right-radius: 1rem;
+            }
+            
+            /* Better touch targets for mobile */
+            .btn-quantity-decrease,
+            .btn-quantity-increase {
+                min-height: 44px;
+                min-width: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Full width buttons on mobile */
+            #actionButtons button {
+                width: 100%;
+                padding: 12px 16px;
+                font-size: 16px;
+            }
+        }
+        
+        /* Ensure modal content is scrollable */
+        #productModal .overflow-y-auto {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Better close button visibility */
+        #productModal button[onclick*="closeModal"] {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+    
     <script>
         // Configure axios defaults
         axios.defaults.withCredentials = true;

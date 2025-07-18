@@ -77,7 +77,13 @@ class ProductDetailModal {
     showLoadingState() {
         const modal = $('#productModal');
         modal.removeClass('hidden').addClass('flex');
-        $('body').css('overflow', 'hidden');
+        
+        // Prevent body scroll and fix mobile viewport issues
+        $('body').addClass('modal-open').css({
+            'overflow': 'hidden',
+            'position': 'fixed',
+            'width': '100%'
+        });
         
         // Show loading content
         $('#modalProductName').text('Memuat produk...');
@@ -87,6 +93,9 @@ class ProductDetailModal {
         $('#modalProductPrice').text('');
         $('#modalProductStock').text('');
         $('#quantity').val(1);
+        
+        // Focus trap for accessibility
+        modal.focus();
     }
 
     /**
@@ -203,7 +212,14 @@ class ProductDetailModal {
      */
     closeModal() {
         $('#productModal').addClass('hidden').removeClass('flex');
-        $('body').css('overflow', 'auto');
+        
+        // Restore body scroll and remove mobile fixes
+        $('body').removeClass('modal-open').css({
+            'overflow': '',
+            'position': '',
+            'width': ''
+        });
+        
         this.currentProduct = null;
     }
 

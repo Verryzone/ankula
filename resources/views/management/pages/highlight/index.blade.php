@@ -177,7 +177,7 @@
                             <p class="text-gray-600 text-sm">Card promosi dan kategori yang ditampilkan di dashboard</p>
                         </div>
                         <a href="{{ route('management.content.create') }}" 
-                           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                             <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"></path>
                             </svg>
@@ -228,7 +228,7 @@
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
                                                     {{ $content->type === 'promo' ? 'bg-blue-100 text-blue-800' : 
-                                                       ($content->type === 'featured' ? 'bg-purple-100 text-purple-800' : 'bg-green-100 text-green-800') }}">
+                                                       ($content->type === 'featured' ? 'bg-purple-100 text-purple-800' : 'bg-blue-100 text-blue-800') }}">
                                                     {{ ucfirst($content->type) }}
                                                 </span>
                                             </td>
@@ -244,7 +244,7 @@
                                                     <input type="checkbox" class="sr-only peer" 
                                                            {{ $content->is_active ? 'checked' : '' }}
                                                            onchange="toggleContentStatus({{ $content->id }}, this)">
-                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                                 </label>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -281,7 +281,7 @@
                             <h3 class="text-lg font-medium text-gray-900 mb-2">Belum ada konten</h3>
                             <p class="text-gray-500 mb-4">Mulai dengan membuat konten pertama untuk dashboard</p>
                             <a href="{{ route('management.content.create') }}" 
-                               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors">
                                 Tambah Konten
                             </a>
                         </div>
@@ -310,7 +310,7 @@
                 document.getElementById('highlights-tab').className = 'py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 border-blue-500 text-blue-600';
             } else {
                 document.getElementById('contents-content').classList.remove('hidden');
-                document.getElementById('contents-tab').className = 'py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 border-green-500 text-green-600';
+                document.getElementById('contents-tab').className = 'py-2 px-1 border-b-2 font-medium text-sm transition-colors duration-200 border-blue-500 text-blue-600';
             }
         }
 

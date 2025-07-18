@@ -64,7 +64,7 @@
                                        name="title" 
                                        id="title"
                                        value="{{ old('title') }}" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('title') border-red-500 @enderror"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('title') border-red-500 @enderror"
                                        placeholder="Contoh: Clear Choice Price"
                                        required>
                                 @error('title')
@@ -81,7 +81,7 @@
                                        name="subtitle" 
                                        id="subtitle"
                                        value="{{ old('subtitle') }}" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('subtitle') border-red-500 @enderror"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('subtitle') border-red-500 @enderror"
                                        placeholder="Contoh: Beli Pulsa">
                                 @error('subtitle')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -95,7 +95,7 @@
                                 </label>
                                 <select name="type" 
                                         id="type"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('type') border-red-500 @enderror"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('type') border-red-500 @enderror"
                                         required>
                                     <option value="">Pilih Tipe</option>
                                     <option value="promo" {{ old('type') === 'promo' ? 'selected' : '' }}>Promo</option>
@@ -114,7 +114,7 @@
                                 </label>
                                 <select name="size" 
                                         id="size"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('size') border-red-500 @enderror"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('size') border-red-500 @enderror"
                                         required>
                                     <option value="">Pilih Ukuran</option>
                                     <option value="small" {{ old('size') === 'small' ? 'selected' : '' }}>Small</option>
@@ -136,7 +136,7 @@
                                        name="price" 
                                        id="price"
                                        value="{{ old('price') }}" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('price') border-red-500 @enderror"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('price') border-red-500 @enderror"
                                        placeholder="50000"
                                        min="0"
                                        step="1">
@@ -155,7 +155,7 @@
                                        name="price_display" 
                                        id="price_display"
                                        value="{{ old('price_display') }}" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('price_display') border-red-500 @enderror"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('price_display') border-red-500 @enderror"
                                        placeholder="Mulai Rp5K">
                                 @error('price_display')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -171,13 +171,13 @@
                                 <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
                                     Gambar (Opsional)
                                 </label>
-                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-green-400 transition-colors">
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-blue-400 transition-colors">
                                     <div class="space-y-1 text-center">
                                         <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                                             <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                                         </svg>
                                         <div class="flex text-sm text-gray-600">
-                                            <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-green-600 hover:text-green-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-green-500">
+                                            <label for="image" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                                 <span>Upload gambar</span>
                                                 <input id="image" name="image" type="file" class="sr-only" accept="image/*" onchange="previewImage(this)">
                                             </label>
@@ -213,7 +213,7 @@
                                     <input type="text" 
                                            id="bg_color_text"
                                            value="{{ old('background_color', '#3B82F6') }}"
-                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                            placeholder="#3B82F6">
                                 </div>
                                 @error('background_color')
@@ -236,7 +236,7 @@
                                     <input type="text" 
                                            id="text_color_text"
                                            value="{{ old('text_color', '#FFFFFF') }}"
-                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                            placeholder="#FFFFFF">
                                 </div>
                                 @error('text_color')
@@ -254,7 +254,7 @@
                                        name="link" 
                                        id="link"
                                        value="{{ old('link') }}" 
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 @error('link') border-red-500 @enderror"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('link') border-red-500 @enderror"
                                        placeholder="https://example.com">
                                 @error('link')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -270,7 +270,7 @@
                                            id="is_active"
                                            value="1"
                                            {{ old('is_active', true) ? 'checked' : '' }}
-                                           class="rounded border-gray-300 text-green-600 shadow-sm focus:border-green-300 focus:ring focus:ring-green-200 focus:ring-opacity-50">
+                                           class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
                                     <span class="ml-2 text-sm font-medium text-gray-700">Aktif</span>
                                 </label>
                                 <p class="mt-1 text-sm text-gray-500">Konten akan ditampilkan di dashboard user</p>
@@ -280,13 +280,30 @@
                             <div id="card-preview" class="border-2 border-gray-200 rounded-lg p-4">
                                 <h4 class="text-sm font-medium text-gray-700 mb-3">Preview Card:</h4>
                                 <div id="preview-card" 
-                                     class="rounded-lg p-4 text-white relative overflow-hidden min-h-[120px] flex flex-col justify-between"
+                                     class="rounded-lg p-4 text-white relative overflow-hidden min-h-[160px] flex items-center shadow-lg"
                                      style="background-color: #3B82F6; color: #FFFFFF;">
-                                    <div>
-                                        <h5 id="preview-title" class="font-semibold text-lg">Clear Choice Price</h5>
-                                        <p id="preview-subtitle" class="text-sm opacity-90">Beli Pulsa</p>
+                                    
+                                    <!-- Left Content Area -->
+                                    <div class="flex-1 z-10 relative">
+                                        <div class="space-y-2">
+                                            <h5 id="preview-title" class="font-semibold text-xl drop-shadow-lg">Clear Choice Price</h5>
+                                            <p id="preview-subtitle" class="text-sm opacity-90 drop-shadow-lg">Beli Pulsa</p>
+                                            <div id="preview-price" class="font-bold text-lg drop-shadow-lg"></div>
+                                            <button class="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors">
+                                                Shop Now
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div id="preview-price" class="font-bold text-sm"></div>
+                                    
+                                    <!-- Right Image Area -->
+                                    <div class="w-32 h-32 ml-4 relative z-10 flex-shrink-0">
+                                        <div id="preview-image-container" 
+                                             class="w-full h-full rounded-lg bg-gray-200 flex items-center justify-center overflow-hidden">
+                                            <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -299,7 +316,7 @@
                             Batal
                         </a>
                         <button type="submit" 
-                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg font-medium transition-colors">
+                                class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors">
                             <svg class="w-5 h-5 inline mr-2" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                             </svg>
@@ -363,11 +380,33 @@
 
         // Image preview
         function previewImage(input) {
+            console.log('previewImage called', input.files);
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('preview-img').src = e.target.result;
-                    document.getElementById('image-preview').classList.remove('hidden');
+                    console.log('Image loaded:', e.target.result);
+                    // Show image preview below upload area
+                    const previewImg = document.getElementById('preview-img');
+                    const imagePreview = document.getElementById('image-preview');
+                    
+                    previewImg.src = e.target.result;
+                    imagePreview.classList.remove('hidden');
+                    
+                    // Show image in card preview - update image container
+                    const previewImageContainer = document.getElementById('preview-image-container');
+                    
+                    console.log('Setting background image for preview image container');
+                    
+                    // Set background image untuk container image
+                    previewImageContainer.style.backgroundImage = `url("${e.target.result}")`;
+                    previewImageContainer.style.backgroundSize = 'cover';
+                    previewImageContainer.style.backgroundPosition = 'center';
+                    previewImageContainer.style.backgroundRepeat = 'no-repeat';
+                    
+                    // Hide placeholder icon
+                    previewImageContainer.innerHTML = '';
+                    
+                    console.log('Background image set successfully');
                 };
                 reader.readAsDataURL(input.files[0]);
             }
@@ -376,6 +415,17 @@
         function removeImage() {
             document.getElementById('image').value = '';
             document.getElementById('image-preview').classList.add('hidden');
+            
+            // Remove image from card preview
+            const previewImageContainer = document.getElementById('preview-image-container');
+            
+            previewImageContainer.style.backgroundImage = '';
+            // Show placeholder icon again
+            previewImageContainer.innerHTML = `
+                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                </svg>
+            `;
         }
 
         // Form input listeners for live preview

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Preview Card</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Test Preview Card Background</h1>
+        
+        <!-- File Upload -->
+        <div class="mb-4">
+            <input type="file" id="imageInput" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+        </div>
+        
+        <!-- Preview Card -->
+        <div class="border-2 border-gray-200 rounded-lg p-4">
+            <h4 class="text-sm font-medium text-gray-700 mb-3">Preview Card:</h4>
+            <div id="preview-card" 
+                 class="rounded-lg p-4 text-white relative overflow-hidden min-h-[120px] flex flex-col justify-between shadow-lg"
+                 style="background-color: #3B82F6; color: #FFFFFF;">
+                <!-- Background Image Layer -->
+                <div id="preview-bg-image" 
+                     class="absolute inset-0 rounded-lg"
+                     style="
+                         background-size: cover; 
+                         background-position: center; 
+                         background-repeat: no-repeat;
+                         opacity: 0;
+                         transition: opacity 0.3s ease;
+                         z-index: 1;
+                     "></div>
+                <!-- Semi-transparent overlay -->
+                <div id="preview-overlay" 
+                     class="absolute inset-0 bg-black rounded-lg"
+                     style="
+                         opacity: 0;
+                         transition: opacity 0.3s ease;
+                         z-index: 2;
+                     "></div>
+                <!-- Content Layer -->
+                <div class="relative" style="z-index: 10;">
+                    <h5 class="font-semibold text-lg drop-shadow-lg">Clear Choice Price</h5>
+                    <p class="text-sm opacity-90 drop-shadow-lg">Earn 20% Back in Rewards</p>
+                </div>
+                <div class="font-bold text-sm relative drop-shadow-lg" style="z-index: 10;">Rp 300.000</div>
+            </div>
+        </div>
+        
+        <!-- Debug Info -->
+        <div id="debug" class="mt-4 p-4 bg-gray-800 text-white rounded text-xs"></div>
+    </div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const previewBgImage = document.getElementById('preview-bg-image');
+                    const previewOverlay = document.getElementById('preview-overlay');
+                    const debug = document.getElementById('debug');
+                    
+                    // Set background image
+                    previewBgImage.style.backgroundImage = `url("${event.target.result}")`;
+                    previewBgImage.style.opacity = '0.7';
+                    previewOverlay.style.opacity = '0.3';
+                    
+                    // Debug info
+                    debug.innerHTML = `
+                        Image loaded: ${event.target.result.substring(0, 50)}...<br>
+                        Background style: ${previewBgImage.style.backgroundImage}<br>
+                        BG Opacity: ${previewBgImage.style.opacity}<br>
+                        Overlay Opacity: ${previewOverlay.style.opacity}
+                    `;
+                    
+                    console.log('Background image set:', previewBgImage.style.backgroundImage);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+    </script>
+</body>
+</html>

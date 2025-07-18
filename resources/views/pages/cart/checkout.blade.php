@@ -393,10 +393,8 @@
                     console.log(key, value);
                 }
                 
-                // Show confirmation
-                const confirmed = confirm('Konfirmasi pembayaran sebesar {{ formatCurrency($total) }}?');
-                
-                if (confirmed) {
+                // Show custom confirmation modal
+                showConfirmationModal('{{ formatCurrency($total) }}', function() {
                     // Show loading state
                     payButton.disabled = true;
                     payButtonText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Memproses...';
@@ -405,11 +403,11 @@
                     
                     // Submit form
                     form.submit();
-                } else {
+                }, function() {
                     // Reset button state if cancelled
                     payButton.disabled = false;
                     payButtonText.innerHTML = '<i class="fas fa-credit-card mr-2"></i> Bayar Sekarang';
-                }
+                });
             });
         });
 
@@ -511,6 +509,106 @@
                     }
                 }, 300);
             }, 3000);
+        }
+
+        // Custom Confirmation Modal Function
+        function showConfirmationModal(amount, onConfirm, onCancel) {
+            // Create modal HTML
+            const modalHTML = `
+                <div id="confirmationModal" class="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl max-w-md w-full transform transition-all duration-300 scale-95 opacity-0 shadow-2xl">
+                        <!-- Modal Header -->
+                        <div class="p-6 text-center">
+                            <div class="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">Konfirmasi Pembayaran</h3>
+                            <p class="text-gray-600 mb-6">
+                                Apakah Anda yakin ingin melanjutkan pembayaran sebesar<br>
+                                <span class="text-2xl font-bold text-blue-600">${amount}</span>?
+                            </p>
+                        </div>
+                        
+                        <!-- Modal Actions -->
+                        <div class="px-6 pb-6 flex gap-3">
+                            <button id="cancelConfirmBtn" type="button" 
+                                    class="flex-1 px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-all duration-200 transform hover:scale-105">
+                                <i class="fas fa-times mr-2"></i>
+                                Batal
+                            </button>
+                            <button id="proceedConfirmBtn" type="button" 
+                                    class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-lg">
+                                <i class="fas fa-credit-card mr-2"></i>
+                                Bayar Sekarang
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Add modal to body
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+            
+            const modal = document.getElementById('confirmationModal');
+            const modalContent = modal.querySelector('.bg-white');
+            const cancelBtn = document.getElementById('cancelConfirmBtn');
+            const proceedBtn = document.getElementById('proceedConfirmBtn');
+            
+            // Show modal with animation
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+            
+            // Handle cancel
+            function handleCancel() {
+                closeModal();
+                if (onCancel) onCancel();
+            }
+            
+            // Handle confirm
+            function handleConfirm() {
+                closeModal();
+                if (onConfirm) onConfirm();
+            }
+            
+            // Close modal function
+            function closeModal() {
+                modalContent.classList.add('scale-95', 'opacity-0');
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                
+                setTimeout(() => {
+                    if (modal && modal.parentNode) {
+                        modal.parentNode.removeChild(modal);
+                    }
+                    document.body.style.overflow = 'auto';
+                }, 300);
+            }
+            
+            // Event listeners
+            cancelBtn.addEventListener('click', handleCancel);
+            proceedBtn.addEventListener('click', handleConfirm);
+            
+            // Close on outside click
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    handleCancel();
+                }
+            });
+            
+            // Close on ESC key
+            function handleKeyDown(e) {
+                if (e.key === 'Escape') {
+                    handleCancel();
+                    document.removeEventListener('keydown', handleKeyDown);
+                }
+            }
+            document.addEventListener('keydown', handleKeyDown);
         }
 
         // Close modal with ESC key

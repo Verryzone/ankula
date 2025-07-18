@@ -4,6 +4,7 @@ use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Support\Facades\Log;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -24,16 +25,40 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (\Illuminate\Console\Scheduling\Schedule $schedule): void {
-        // Auto-check payment status every 5 minutes
+        // Payment status auto-check setiap 3 menit (lebih frequent untuk better UX)
         $schedule->command('payments:check-all --fix')
-                 ->everyFiveMinutes()
+                 ->everyThreeMinutes()
                  ->withoutOverlapping()
-                 ->runInBackground();
-                 
-        // Clean up expired payments daily
+                 ->runInBackground()
+                 ->appendOutputTo(storage_path('logs/payment-auto-check.log'))
+                 ->onSuccess(function () {
+                     Log::info('Payment auto-check completed successfully');
+                 })
+                 ->onFailure(function () {
+                     Log::error('Payment auto-check failed');
+                 });
+
+        // Cleanup expired payments setiap 2 jam
         $schedule->command('payments:cleanup-expired')
-                 ->daily()
-                 ->at('03:00');
+                 ->everyTwoHours()
+                 ->withoutOverlapping()
+                 ->runInBackground()
+                 ->appendOutputTo(storage_path('logs/payment-cleanup.log'));
+
+        // Health check untuk memastikan scheduler berjalan
+        $schedule->call(function () {
+            Log::info('Scheduler health check - ' . now()->toDateTimeString());
+            // Update file timestamp untuk monitoring
+            touch(storage_path('logs/scheduler-heartbeat.txt'));
+        })->everyMinute()
+          ->name('scheduler-heartbeat');
+
+        // Weekly maintenance
+        $schedule->command('optimize:clear')
+                 ->weekly()
+                 ->sundays()
+                 ->at('02:00')
+                 ->appendOutputTo(storage_path('logs/maintenance.log'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

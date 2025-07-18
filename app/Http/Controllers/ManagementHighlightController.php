@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\DashboardHighlight;
+use App\Models\DashboardContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -12,7 +13,8 @@ class ManagementHighlightController extends Controller
     public function index()
     {
         $highlights = DashboardHighlight::ordered()->get();
-        return view('management.pages.highlight.index', compact('highlights'));
+        $contents = DashboardContent::ordered()->get();
+        return view('management.pages.highlight.index', compact('highlights', 'contents'));
     }
 
     public function create()
@@ -140,6 +142,151 @@ class ManagementHighlightController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Urutan highlight berhasil diupdate!'
+        ]);
+    }
+
+    // Dashboard Content Management Methods
+    public function contentCreate()
+    {
+        return view('management.pages.highlight.content-create');
+    }
+
+    public function contentStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'price' => 'nullable|numeric|min:0',
+            'price_display' => 'nullable|string|max:100',
+            'link' => 'nullable|url',
+            'background_color' => 'required|string|max:7',
+            'text_color' => 'required|string|max:7',
+            'size' => 'required|in:small,medium,large',
+            'type' => 'required|in:promo,featured,category',
+            'is_active' => 'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+        $data['is_active'] = $request->has('is_active');
+        
+        // Set sort order to last
+        $lastOrder = DashboardContent::max('sort_order') ?? 0;
+        $data['sort_order'] = $lastOrder + 1;
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('contents', $imageName, 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        DashboardContent::create($data);
+
+        return redirect()->route('management.highlight.index')
+            ->with('success', 'Konten berhasil ditambahkan!');
+    }
+
+    public function contentEdit(DashboardContent $content)
+    {
+        return view('management.pages.highlight.content-edit', compact('content'));
+    }
+
+    public function contentUpdate(Request $request, DashboardContent $content)
+    {
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|string|max:255',
+            'subtitle' => 'nullable|string|max:255',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'price' => 'nullable|numeric|min:0',
+            'price_display' => 'nullable|string|max:100',
+            'link' => 'nullable|url',
+            'background_color' => 'required|string|max:7',
+            'text_color' => 'required|string|max:7',
+            'size' => 'required|in:small,medium,large',
+            'type' => 'required|in:promo,featured,category',
+            'is_active' => 'boolean',
+            'remove_image' => 'boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $data = $validator->validated();
+        $data['is_active'] = $request->has('is_active');
+
+        // Handle image removal
+        if ($request->has('remove_image') && $request->remove_image) {
+            if ($content->image_path && Storage::disk('public')->exists($content->image_path)) {
+                Storage::disk('public')->delete($content->image_path);
+            }
+            $data['image_path'] = null;
+        }
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($content->image_path && Storage::disk('public')->exists($content->image_path)) {
+                Storage::disk('public')->delete($content->image_path);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $imagePath = $image->storeAs('contents', $imageName, 'public');
+            $data['image_path'] = $imagePath;
+        }
+
+        $content->update($data);
+
+        return redirect()->route('management.highlight.index')
+            ->with('success', 'Konten berhasil diupdate!');
+    }
+
+    public function contentDestroy(DashboardContent $content)
+    {
+        // Delete image if exists
+        if ($content->image_path && Storage::disk('public')->exists($content->image_path)) {
+            Storage::disk('public')->delete($content->image_path);
+        }
+
+        $content->delete();
+
+        return redirect()->route('management.highlight.index')
+            ->with('success', 'Konten berhasil dihapus!');
+    }
+
+    public function contentToggleActive(DashboardContent $content)
+    {
+        $content->update(['is_active' => !$content->is_active]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status konten berhasil diubah!',
+            'is_active' => $content->is_active
+        ]);
+    }
+
+    public function contentUpdateOrder(Request $request)
+    {
+        $contents = $request->input('contents', []);
+
+        foreach ($contents as $index => $id) {
+            DashboardContent::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Urutan konten berhasil diupdate!'
         ]);
     }
 }

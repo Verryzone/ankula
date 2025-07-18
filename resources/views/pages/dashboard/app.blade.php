@@ -101,25 +101,84 @@
 
                     </section>
 
-                    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="bg-white rounded-lg p-6 flex items-center justify-between col-span-1 lg:col-span-2">
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800">Clear Choice Price</h3>
-                                <p class="text-gray-600">Earn 20% Back in Rewards</p>
-                                <button
-                                    class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg mt-4 hover:bg-blue-700">Shop
-                                    Now</button>
+                    @if($contents->count() > 0)
+                        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            @foreach($contents as $content)
+                                @php
+                                    $colSpan = match($content->size) {
+                                        'large' => 'col-span-1 lg:col-span-2',
+                                        'medium' => 'col-span-1',
+                                        'small' => 'col-span-1',
+                                        default => 'col-span-1'
+                                    };
+                                @endphp
+                                <div class="rounded-lg p-6 flex items-center justify-between {{ $colSpan }}" 
+                                     style="background-color: {{ $content->background_color }}; color: {{ $content->text_color }};">
+                                    <div>
+                                        <h3 class="text-xl font-bold mb-2">{{ $content->title }}</h3>
+                                        @if($content->subtitle)
+                                            <p class="mb-2 opacity-80">{{ $content->subtitle }}</p>
+                                        @endif
+                                        @if($content->description)
+                                            <p class="mb-2 opacity-70 text-sm">{{ $content->description }}</p>
+                                        @endif
+                                        @if($content->price_display)
+                                            <p class="mb-4 opacity-90">{{ $content->price_display }}</p>
+                                        @endif
+                                        @if($content->button_link)
+                                            <a href="{{ $content->button_link }}"
+                                               class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">
+                                                {{ $content->button_text }}
+                                            </a>
+                                        @else
+                                            <button class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-blue-700 transition-colors">
+                                                {{ $content->button_text }}
+                                            </button>
+                                        @endif
+                                    </div>
+                                    @if($content->image_path)
+                                        <img src="{{ asset('storage/' . $content->image_path) }}" 
+                                             alt="{{ $content->title }}" 
+                                             class="{{ $content->size === 'large' ? 'w-48' : 'w-24' }} h-auto">
+                                    @else
+                                        <!-- Default images based on content type -->
+                                        @if($content->type === 'promo' || $content->title === 'Clear Choice Price')
+                                            <img src="{{ asset('img/2.jpg') }}" alt="{{ $content->title }}" class="{{ $content->size === 'large' ? 'w-48' : 'w-24' }} h-auto">
+                                        @elseif($content->type === 'category' || $content->title === 'Charge Your Devices')
+                                            <img src="{{ asset('img/13.jpg') }}" alt="{{ $content->title }}" class="{{ $content->size === 'large' ? 'w-48' : 'w-24' }} h-auto">
+                                        @else
+                                            <div class="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                                                <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"></path>
+                                                </svg>
+                                            </div>
+                                        @endif
+                                    @endif
+                                </div>
+                            @endforeach
+                        </section>
+                    @else
+                        <!-- Default content sections if no content is configured -->
+                        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div class="bg-white rounded-lg p-6 flex items-center justify-between col-span-1 lg:col-span-2">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Clear Choice Price</h3>
+                                    <p class="text-gray-600">Earn 20% Back in Rewards</p>
+                                    <button
+                                        class="bg-blue-600 text-white font-semibold py-2 px-5 rounded-lg mt-4 hover:bg-blue-700">Shop
+                                        Now</button>
+                                </div>
+                                <img src="{{ asset('img/2.jpg') }}" alt="Speaker" class="w-48 h-auto">
                             </div>
-                            <img src="{{ asset('img/2.jpg') }}" alt="Speaker" class="w-48 h-auto">
-                        </div>
-                        <div class="bg-white rounded-lg p-6 flex items-center justify-between">
-                            <div>
-                                <h3 class="text-xl font-bold text-gray-800">Charge Your Devices</h3>
-                                <p class="text-gray-600">Starting from <span class="font-bold">$29.99</span></p>
+                            <div class="bg-white rounded-lg p-6 flex items-center justify-between">
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">Charge Your Devices</h3>
+                                    <p class="text-gray-600">Starting from <span class="font-bold">$29.99</span></p>
+                                </div>
+                                <img src="{{ asset('img/13.jpg') }}" alt="Powerbank" class="w-24 h-auto">
                             </div>
-                            <img src="{{ asset('img/13.jpg') }}" alt="Powerbank" class="w-24 h-auto">
-                        </div>
-                    </section>
+                        </section>
+                    @endif
 
                     <section>
                         <div class="flex justify-between items-center mb-6">

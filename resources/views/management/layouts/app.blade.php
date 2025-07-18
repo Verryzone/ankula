@@ -43,7 +43,7 @@
             <div class="flex-1 mt-6 min-h-screen">
                 <!-- Page Content -->
                 <main>
-                    {{ $slot }}
+                    @yield('content')
                 </main>
             </div>
         </div>

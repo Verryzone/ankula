@@ -70,6 +70,15 @@ Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function 
     Route::post('/highlight/{highlight}/toggle-active', [\App\Http\Controllers\ManagementHighlightController::class, 'toggleActive'])->name('management.highlight.toggle-active');
     Route::post('/highlight/update-order', [\App\Http\Controllers\ManagementHighlightController::class, 'updateOrder'])->name('management.highlight.update-order');
 
+    // Content routes
+    Route::get('/content/create', [\App\Http\Controllers\ManagementHighlightController::class, 'contentCreate'])->name('management.content.create');
+    Route::post('/content', [\App\Http\Controllers\ManagementHighlightController::class, 'contentStore'])->name('management.content.store');
+    Route::get('/content/{content}/edit', [\App\Http\Controllers\ManagementHighlightController::class, 'contentEdit'])->name('management.content.edit');
+    Route::put('/content/{content}', [\App\Http\Controllers\ManagementHighlightController::class, 'contentUpdate'])->name('management.content.update');
+    Route::delete('/content/{content}', [\App\Http\Controllers\ManagementHighlightController::class, 'contentDestroy'])->name('management.content.destroy');
+    Route::post('/content/{content}/toggle-active', [\App\Http\Controllers\ManagementHighlightController::class, 'contentToggleActive'])->name('management.content.toggle-active');
+    Route::post('/content/update-order', [\App\Http\Controllers\ManagementHighlightController::class, 'contentUpdateOrder'])->name('management.content.update-order');
+
     // Order management routes
     Route::get('/orders', [ManagementOrderController::class, 'index'])->name('management.orders.index');
     Route::get('/orders/{id}', [ManagementOrderController::class, 'show'])->name('management.orders.show');

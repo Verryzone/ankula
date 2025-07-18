@@ -1,4 +1,6 @@
-<x-management-app-layout>
+@extends('management.layouts.app')
+
+@section('content')
     <div class="pt-4 px-3 mt-2 lg:py-11">
         <div class="max-w-screen-lg mx-auto px-4 sm:px-6 lg:px-8 space-y-6 bg-white rounded-lg shadow mb-56">
             <div class="w-full mb-5">
@@ -304,4 +306,4 @@
             buttonTextInput.addEventListener('input', updatePreview);
         });
     </script>
-</x-management-app-layout>
+@endsection

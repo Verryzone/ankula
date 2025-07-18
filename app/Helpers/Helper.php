@@ -19,17 +19,17 @@ function formatCurrency($amount)
 
 function activeMenu($routeName)
 {
-      return Route::is($routeName) ? 'bg-gray-200 font-bold' : 'bg-gray-50';
+      return Route::is($routeName);
 }
 
 function selectedDropdown($submenu = [])
 {
       foreach ($submenu as $item) {
             if (Route::is($item)) {
-                  return '';
+                  return true;
             }
       }
-      return 'hidden';
+      return false;
 }
 
 function getOrderStatusBadgeClass($status)

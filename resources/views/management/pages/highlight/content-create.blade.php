@@ -1,3 +1,4 @@
+
 @extends('management.layouts.app')
 
 @section('content')

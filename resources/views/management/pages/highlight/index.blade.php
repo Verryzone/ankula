@@ -64,7 +64,7 @@
                 </div>
 
                 <!-- Highlights Tab Content -->
-                <div id="highlights-content" class="tab-content">
+                <div id="highlights-content" class="tab-content pb-8">
                     <div class="flex justify-between items-center mb-6 mt-6">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Highlights Banner</h3>
@@ -170,7 +170,7 @@
                 </div>
 
                 <!-- Contents Tab Content -->
-                <div id="contents-content" class="tab-content hidden">
+                <div id="contents-content" class="tab-content hidden pb-8">
                     <div class="flex justify-between items-center mb-6 mt-6">
                         <div>
                             <h3 class="text-lg font-semibold text-gray-900">Konten Cards</h3>

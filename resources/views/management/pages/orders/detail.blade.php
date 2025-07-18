@@ -1,4 +1,6 @@
-<x-management-app-layout>
+@extends('management.layouts.app')
+
+@section('content')
     <div class="py-11 lg:px-3">
         <div class="px-8 pt-2 bg-white block sm:flex items-center justify-between border-b rounded-t-lg border-gray-200 lg:mt-1.5 dark:bg-gray-800 dark:border-gray-700">
             <div class="w-full mb-5">
@@ -377,4 +379,4 @@
             }
         }
     </script>
-</x-management-app-layout>
+@endsection

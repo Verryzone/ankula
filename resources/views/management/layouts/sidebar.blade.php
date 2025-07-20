@@ -39,13 +39,13 @@
                                 </svg>
                             </div>
                             <span class="flex-1 text-left">Master Data</span>
-                            <svg id="dropdown-arrow" class="w-4 h-4 transition-transform duration-200 {{ Route::is('management.product.list', 'management.category.list') ? 'rotate-180' : '' }}" fill="currentColor" viewBox="0 0 20 20">
+                            <svg id="dropdown-arrow" class="w-4 h-4 transition-transform duration-200 {{ Route::is('management.product.list', 'management.category.list', 'management.users.*') ? 'rotate-180' : '' }}" fill="currentColor" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                             </svg>
                         </button>
                         
                         <!-- Dropdown -->
-                        <div id="dropdown-menu" class="overflow-hidden transition-all duration-300 ease-in-out {{ Route::is('management.product.list', 'management.category.list') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0' }}">
+                        <div id="dropdown-menu" class="overflow-hidden transition-all duration-300 ease-in-out {{ Route::is('management.product.list', 'management.category.list', 'management.users.*') ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0' }}">
                             <div class="ml-6 mt-2 space-y-1">
                                 <a href="{{ route('management.product.list') }}" 
                                    class="flex {{ Route::is('management.product.list') ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }} items-center p-2 rounded-lg transition-all duration-200">
@@ -65,8 +65,8 @@
                                     </div>
                                     <span>Categories</span>
                                 </a>
-                                <a href="#" 
-                                   class="flex text-gray-500 hover:bg-gray-50 hover:text-gray-700 items-center p-2 rounded-lg transition-all duration-200">
+                                <a href="{{ route('management.users.index') }}" 
+                                   class="flex {{ Route::is('management.users.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700' }} items-center p-2 rounded-lg transition-all duration-200">
                                     <div class="w-6 h-6 flex items-center justify-center rounded bg-gray-100 mr-3">
                                         <svg class="w-3 h-3 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"></path>
@@ -125,7 +125,7 @@
 </div>
 
 <script>
-let isDropdownOpen = {{ Route::is('management.product.list', 'management.category.list') ? 'true' : 'false' }};
+let isDropdownOpen = {{ Route::is('management.product.list', 'management.category.list', 'management.users.*') ? 'true' : 'false' }};
 
 function toggleDropdown() {
     const dropdown = document.getElementById('dropdown-menu');

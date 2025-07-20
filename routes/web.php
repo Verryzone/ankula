@@ -7,6 +7,7 @@ use App\Http\Controllers\dashboardController;
 use App\Http\Controllers\ManagementController;
 use App\Http\Controllers\ManagementOrderController;
 use App\Http\Controllers\ManagementProfileController;
+use App\Http\Controllers\ManagementUserController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -59,6 +60,19 @@ Route::prefix('management')->middleware(['auth', 'role:admin'])->group(function 
     Route::get('/category', [CategoryController::class, 'list'])->name('management.category.list');
     Route::post('/category', [CategoryController::class, 'add'])->name('management.category.add');
     Route::delete('/category', [CategoryController::class, 'destroy'])->name('management.category.destroy');
+
+    // User management routes
+    Route::resource('users', \App\Http\Controllers\ManagementUserController::class, [
+        'as' => 'management'
+    ])->except(['show'])->names([
+        'index' => 'management.users.index',
+        'create' => 'management.users.create',
+        'store' => 'management.users.store',
+        'edit' => 'management.users.edit',
+        'update' => 'management.users.update',
+        'destroy' => 'management.users.destroy'
+    ]);
+    Route::get('/users/{user}', [\App\Http\Controllers\ManagementUserController::class, 'show'])->name('management.users.show');
 
     // Highlight routes
     Route::get('/highlight', [\App\Http\Controllers\ManagementHighlightController::class, 'index'])->name('management.highlight.index');

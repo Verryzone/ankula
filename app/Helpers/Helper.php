@@ -17,6 +17,14 @@ function formatCurrency($amount)
       return 'Rp ' . number_format($amount, 0, ',', '.');
 }
 
+function limitText($text, $limit = 50, $end = '...')
+{
+      if (strlen($text) <= $limit) {
+          return $text;
+      }
+      return substr($text, 0, $limit) . $end;
+}
+
 function activeMenu($routeName)
 {
       return Route::is($routeName);

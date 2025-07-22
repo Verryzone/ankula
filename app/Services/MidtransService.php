@@ -138,6 +138,17 @@ class MidtransService
                 'transaction_details' => $transactionDetails,
                 'customer_details' => $customerDetails,
                 'item_details' => $itemDetails,
+                // Add enabled payment methods untuk memastikan channels tersedia
+                'enabled_payments' => [
+                    'credit_card', 'cimb_clicks', 'bca_klikbca', 'bca_klikpay', 'bri_epay',
+                    'echannel', 'permata_va', 'bca_va', 'bni_va', 'bri_va', 'other_va',
+                    'gopay', 'shopeepay', 'indomaret', 'alfamart'
+                ],
+                // Credit card configuration
+                'credit_card' => [
+                    'secure' => true,
+                    'channel' => 'migs'
+                ]
             ];
 
             // Log transaction data for debugging

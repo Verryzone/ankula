@@ -79,7 +79,11 @@
     </div>
 
     <!-- Midtrans Snap JavaScript -->
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.clientKey', env('MIDTRANS_CLIENT_KEY')) }}"></script>
+    @if(config('midtrans.isProduction'))
+        <script src="https://app.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.clientKey', env('MIDTRANS_CLIENT_KEY')) }}"></script>
+    @else
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.clientKey', env('MIDTRANS_CLIENT_KEY')) }}"></script>
+    @endif
     <script type="text/javascript">
         document.getElementById('pay-button').onclick = function(){
             snap.pay('{{ $snapToken }}', {
